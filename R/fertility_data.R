@@ -1,0 +1,30 @@
+#' Total fertility rate data
+#'
+#' This dataset contains the total fertility rate (TFR) for different countries.
+#'
+#' @format A data frame with 13,293 observations with 13 variables
+#' \describe{
+#'
+#' \item{country}{The country name (character)}
+#' \item{iso2c}{The two-letter country code (character)}
+#' \item{iso3c}{The three-letter country code (character)}
+#' \item{year}{The observation year (numeric)}
+#' \item{SP.DYN.TFRT.IN}{The observational value, which in this context refer to as index (numeric)}
+#' \item{status}{An empty variable meant to indicate the operational status of variables}
+#' \item{lastupdated}{The date when the data for this indicator was last revised}
+#' \item{region}{The region grouping variable (character)}
+#' \item{capital}{The capital city of each country}
+#' \item{longitude}{The longitude of the city}
+#' \item{latitude}{The latitude of the city}
+#' \item{income}{The income grouping variable (character)}
+#' \item{lending}{The World Bank lending classification of each country}
+#' }
+#'
+#' @source World Development Indicator, using the WDI R package
+#'
+#' @examples
+#' data(fertility_data)
+#'
+#' head(fertility_data)
+"fertility_data"
+

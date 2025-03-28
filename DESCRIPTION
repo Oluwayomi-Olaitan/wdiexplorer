@@ -1,11 +1,22 @@
 Package: wdiexplorer
-Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Explore WDI Data and Other World Bank-hosted Databases
+Version: 0.0.0.1000
+Authors@R: 
+    person("Oluwayomi", "Akinfenwa", , "yomiolaitan03@gmail.com", role = c("aut", "cre"))
+Description: Explore spatio-temporal data of all indicators of the WDI and other databases, with the aim of data exploration to identify interesting features, outliers, patterns and other characteristics of the data. 
+License: MIT + file LICENSE
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: WDI,
+  dplyr,
+  tidyr,
+  tibble,
+  tidyselect,
+  cluster
+Depends: 
+    R (>= 3.5)
 LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
