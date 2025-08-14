@@ -1,0 +1,76 @@
+plot_missing <- function(wdi_data, index = NULL, group_var){
+  # Identify the name of the variable in the wdi data that contains the country-year value as index
+  if(is.null(index)) {
+    index_var <- attr(wdi_data, "index_var")
+    index = index_var[1]
+  }
+
+  data_long <- wdi_data |>
+    dplyr::select(country, year, tidyselect::all_of(group_var), tidyselect::all_of(index)) |>
+    dplyr::mutate(
+      missing = is.na(.data[[index]]),
+      group = as.factor(.data[[group_var]]),
+      # colors in the order of the group levels
+      colour = scales::hue_pal()(length(levels(group)))[as.integer(group)],
+      country_label = paste0("<span style='color:", colour, "'>", country, "</span>"),
+      # reverse the countries
+      country_label = forcats::fct_rev(country_label)
+    )
+
+  # calculate the missing/present percentage for the lengend
+  percentages <- data_long |>
+    dplyr::summarise(
+      present = round((sum(!missing) / dplyr::n() *100), 1),
+      missing = round((sum(missing) / dplyr::n() *100), 1)
+    )
+
+  # missingness plot
+  P <- data_long |>
+    ggplot2::ggplot() +
+    ggplot2::aes(x = year, y = country_label, fill = missing) +
+    ggplot2::geom_raster() +
+    ggplot2::scale_fill_manual(
+      name = " ",
+      values = c("TRUE" = "black", "FALSE" = "grey90"),
+      labels = c(
+        paste0("Present (", percentages$present, "%)"),
+        paste0("Missing (", percentages$missing, "%)")
+      )
+    ) +
+    ggplot2::scale_x_continuous(breaks = scales::breaks_width(8), expand = c(0, 0)) +
+    ggplot2::labs( x = " ", y = " ") +
+    ggplot2::facet_grid(ggplot2::vars(group), scales = "free_y", space = "free_y", switch = "y") +
+    ggplot2::theme(
+      axis.text.y = ggtext::element_markdown(size = 6.2),
+      axis.ticks.y = ggplot2::element_blank(),
+      legend.position = "bottom",
+      panel.spacing = grid::unit(0.05, "lines"),
+      strip.text.y.left = ggplot2::element_text(hjust = 1, angle = 0),
+      strip.background = ggplot2::element_rect(fill = "white"),
+      strip.placement = "outside"
+    )
+
+
+  # converting the ggplot to a graphical object
+  G <- ggplot2::ggplotGrob(P)
+
+  stripl <- which(grepl('strip-l', G$layout$name))  #the strip names has been switch to the left, hence the reason for the strip-l
+
+  # Extract the default colors from the data
+  default_colors <- data_long |>
+    dplyr::select(group, colour) |>
+    dplyr::distinct()
+
+  for (i in stripl){
+    j <- which(grepl('rect', G$grobs[[i]]$grobs[[1]]$childrenOrder))
+    k <- which(grepl('text', G$grobs[[i]]$grobs[[1]]$childrenOrder))
+    grobtext <- G$grobs[[i]]$grobs[[1]]$children[[k]]$children[[1]]$label
+    st <- match(grobtext, default_colors$group)
+    if (!is.na(st)){
+      r <- which(grepl('text', G$grobs[[i]]$grobs[[1]]$children[[k]]$childrenOrder))
+      G$grobs[[i]]$grobs[[1]]$children[[k]]$children[[r]]$gp$col <- default_colors[st, "colour"]
+    }
+  }
+
+  grid::grid.draw(G)
+}

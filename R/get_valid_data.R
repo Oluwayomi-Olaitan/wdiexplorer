@@ -1,0 +1,54 @@
+get_valid_data <- function(wdi_data, index = NULL) {
+  # Identify the name of the variable in the wdi data that contains the country-year value as index
+  if(is.null(index)) {
+    index_var <- attr(wdi_data, "index_var")
+    index = index_var[1]
+  }
+
+  # Identify years with no data points
+  invalid_years <- wdi_data |>
+    dplyr::group_by(year) |>
+    dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
+    dplyr::filter(n==0) |>
+    dplyr::pull(year)
+
+  #return message about missing years
+  year_message <- if(length(invalid_years) > 0) {
+    paste("The", length(invalid_years),
+          "year(s) listed below had no available data and were excluded:\n",
+          paste(invalid_years, collapse = ", \t"))
+  } else{
+    "All years have at least one valid data point"
+  }
+
+  # Identify country with no data points
+  invalid_countries <- wdi_data |>
+    dplyr::group_by(country) |>
+    dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
+    dplyr::filter(n==0) |>
+    dplyr::pull(country)
+
+  #return message about missing countries
+  country_message <- if(length(invalid_countries) > 0) {
+    paste("The", length(invalid_countries),
+          "countries listed below had no available data and were excluded:\n",
+          paste(invalid_countries, collapse = "\n- "))
+  } else{
+    "All countries have at least one valid data point"
+  }
+
+  # filter valid countries and years where actual data were collected, ignoring the WDI defaults
+  valid_data <- wdi_data |>
+    dplyr::arrange(year) |> # arrange year in ascending order
+    dplyr::group_by(year) |>
+    dplyr::filter(sum(!is.na(.data[[index]])) > 0) |> #Ensure a year level has at least one valid point
+    dplyr::ungroup() |>
+    dplyr::group_by(country) |>
+    dplyr::filter(sum(!is.na(.data[[index]])) > 0) |> #Ensure a country level has at least one valid point
+    dplyr::ungroup()
+
+  # print the messages
+  cat(paste0(country_message, "\n\n", year_message), "\n")
+
+  return(valid_data)
+}
