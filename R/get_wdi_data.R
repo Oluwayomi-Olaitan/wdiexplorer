@@ -1,3 +1,14 @@
+#' Download WDI data using the `WDI` R package
+#'
+#' Create and store the data for the specified indicator code in a folder called `wdi_data`.
+#'
+#' @param indicator A valid WDI indicator code
+#'
+#' @returns An `.rds` file containing the data set for the specified indicator code.
+#' @export
+#'
+#' @examples
+#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 get_wdi_data <- function(indicator) {
 
   # Create a folder to store the data if it does not exist

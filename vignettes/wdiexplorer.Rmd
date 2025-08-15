@@ -1,0 +1,340 @@
+---
+title: "wdiexplorer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{wdiexplorer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(wdiexplorer)
+```
+
+This document introduces the `wdiexplorer` package, and illustrate how each function can help identify patterns, outliers and other potentially interesting features of country-level panel data. 
+
+The `wdiexplorer` package provides a collection of indices for exploratory analysis of country-level panel data from the World Development Indicators (WDI, [the world bank collection of development indicators](https://databank.worldbank.org/home.aspx)) using the `WDI` R package to effectively source and store the data locally. The package name is an acronym that captures its core functionality: World Development Indicators Explorer.
+
+There are three main goals for `wdiexplorer`:
+
+1. Group-Informed Exploration of Country-Level Panel Data.
+
+2. A Collection of Diagnostic Indices to Characterise Panel Data Behaviour.
+
+3. Interactive Visuals to Summarise Behavioral Patterns and Group-Based Features.
+
+This guide is organised according to these goals, and will continue to evolve with the package.
+
+We further categorised the workflow into three stages and presented below.
+
+## Stage 1: Data Sourcing and Preparation
+
+This initial stage of the workflow uses three core functions: `get_wdi_data()`; 
+
+### Data
+
+To load any WDI indicator data of choice, our function `get_wdi_data()` is designed to retrieve data from the WDI R package. The `get_wdi_data()` function takes a single argument named `indicator`, which should be a valid code (e.g., In this vignette, we will be using the PM2.5 air pollution data with WDI indicator code: "EN.ATM.PM25.MC.M3").
+
+You can find indicator codes by using the `WDI::WDISearch()` function in R, as illustrated below.
+
+```{r, get-data}
+
+WDI::WDIsearch("air pollution")
+
+# use the get_wdi_data() function to fetch the data set from the WDI
+pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
+
+tibble::glimpse(pm_data)
+```
+
+### Identifying Data Gaps
+
+A helpful initial check is to highlight where data is missing across time and countries. It is essential to summarise the data and identify countries with missing data. To facilitate this, we extend the functionality of the `vis_miss()` function from the `naniar` package by introducing the `plot_miss()` function. This function takes two arguments: `wdi_data` representing any WDI data object, and `group_var` a pre-defined grouping variable within the data set. The resulting grouped missingness plot arranges countries according to their respective grouping levels, facilitating a structured overview of missing data.
+
+```{r, missingness-plot, fig.width=7.5, fig.height=11.5}
+plot_missing(wdi_data = pm_data, group_var = "region")
+```
+
+The missingness plot shows that 17 countries across three regions; 4 countries in East Asia & Pacific, 6 countries in Europe & Central Asia, and 7 countries in Latin America & the Caribbean have no valid recorded data between 1990 and 2020. It also shows that no data points are available across all countries during the years 1960 to 1989 and 2021 to 2024.
+
+To complement this visual summary, we introduce a second step: calculating the total number of missing entries per country. 
+
+```{r, missingness}
+index = "EN.ATM.PM25.MC.M3"
+
+pm_data |>
+  dplyr::select(country, region, year, tidyselect::all_of(index)) |>
+  dplyr::group_by(region, country) |>
+  naniar::miss_var_summary() |>
+  dplyr::filter(variable == index) |>
+  dplyr::arrange(desc(n_miss))
+```
+
+In addition, the `wdiexplorer` package provides the `get_valid_data()` function, which reports countries with no data points as well as years for which no data are available, and returns a tibble with the valid data for the provided WDI indicator data set.
+
+```{r, checks-function}
+get_valid_data(pm_data)
+```
+
+## Stage 2: Diagnostic Indices
+
+This second stage of the workflow focuses on calculating the diagnostic indices. They measure variation, trend and shape features, as well as sequential temporal characteristics.
+
+### Variation features
+
+To measure variation, the `compute_variation()` function accepts two main arguments: a data set of any WDI indicator and a grouping variable `group_var`. It also includes an optional dissimilarity matrix argument, `diss_matrix` (defaulting to the output of `compute_dissimilarity()`. The `compute_dissimilarity()` function takes a data set of any WDI indicator, and returns a matrix of dissimilarity values between country pairs.
+
+Users can compute the dissimilarity matrix separately and pass it directly as the `diss_matrix` argument into the `compute_variation()` function as demonstrated below or allow the function to compute it internally by specifying only the two main arguments.
+
+```{r, variation}
+pm_diss_mat <- compute_dissimilarity(pm_data)
+ 
+pm_variation <- compute_variation(
+                    pm_data, 
+                    diss_matrix = pm_diss_mat, 
+                    group_var = "region"
+        )
+```
+
+The output `pm_variation` enables the exploration of computed variation features. It facilitates the identification of the most distinctive countries, the evaluation of within-group differences, and the analysis of how closely aligned countries within a group are compared to those in other groups. However, these measures are not always intuitive to interpret on their own; they are best understood in conjunction with the accompanying data series trajectories.
+
+#### country dissimilarity average
+
+```{r, dissimilarities}
+pm_variation |> 
+        dplyr::arrange(desc(country_avg_dist)) |> 
+        dplyr::slice_head(n = 3)
+```
+
+The result above shows that Qatar has the highest overall average dissimilarity, followed by Niger and Mauritania. These countries, Qatar, Niger, and Mauritania, not only rank highest in overall average dissimilarity but also exhibit the highest dissimilarity relative to countries in their respective region groups. 
+
+### Trend and Shape Features
+
+To examine trend and shape features, the `compute_trend_shape_features()` takes one main argument: a dataset of any WDI indicator data and an additional `index` argument which defaults to `NULL`. It returns a data frame containing columns: `country`, `trend_strength`, `linearity`, and `smoothness`.
+
+```{r, trend-shape}
+pm_trend_shape <- compute_trend_shape_features(pm_data)
+```
+
+The `pm_trend_shape` output enables the exploration of the computed trend and shape features.
+
+```{r, trend-strength}
+pm_trend_shape |> 
+        dplyr::arrange(desc(trend_strength)) |>
+    dplyr::slice_head(n = 3)
+```
+
+The output highlights countries with the strongest trends. Ukraine, Moldova, and the United Kingdom are the top three countries with the strongest trend strength.
+
+### Sequential Temporal Features
+
+Lastly, to measure the sequential temporal features of the data series, the `compute_temporal_features()` also takes the same arguments as the other functions that calculate diagnostic indices. It returns a data frame containing columns: `country`, `crossing_points`, `flat_spot`, and `autocorrelation`.
+
+```{r, temporal}
+pm_temporal <- compute_temporal_features(pm_data)
+```
+
+The `pm_temporal` output enables the exploration of the computed sequential temporal features.
+
+```{r, flat-spot}
+pm_temporal |> 
+   dplyr::arrange(desc(flat_spot)) |> 
+   dplyr::slice(c(1:3, (dplyr::n() - 2):dplyr::n()))
+```
+
+Kyrgyz Republic and United Arab Emirates have the longest flat spots, characterised by long consecutive periods during which their data series remain within an interval. In contrast, Jordan, Rwanda, and West Bank and Gaza exhibit the shortest consecutive periods where their series remain within a specified interval.
+
+We introduce a function that compute all the set of diagnostic indices collectively and returns the measures in a single data frame. The `compute_diagnostic_indices()` function takes two arguments: a dataset of any WDI indicator data and a grouping variable `group_var`.
+
+```{r, diagnostic-metrics}
+pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
+```
+
+This `pm_diagnostic_metrics` output can be passed directly to the plot functions of the `wdiexplorer` package.
+
+Our plot function requires a grouping variable. Hence, we introduce `add_group_info()` function to append the pre-defined grouping information from the WDI data set to the data frame of any computed diagnostics function output. The function takes two arguments: a data frame with the calculated diagnostic indices `metric_summary`; and a dataset of any WDI indicator data.
+
+```{r, add-group}
+pm_diagnostic_metrics_group <- add_group_info(
+                    metric_summary = pm_diagnostic_metrics,
+                    pm_data
+            )
+```
+
+
+## Stage 3: Static and Interactive Visualisations
+
+The third stage of the workflow utilises visual summaries to detect potentially interesting features within panel data. Our package offers five core functions, two static plot functions: `plot_metric_distribution()`, `plot_metric_partition()` and three interactive plot functions: `plot_data_trajectories()`, `plot_parallel_coords()`, and `plot_metric_linkview()`.
+
+
+### `plot_metric_distribution()`
+
+The `plot_metric_distribution()` generates distribution plot of all set of diagnostic indices or some selected metric(s). By default, the distribution(s) are ungrouped; if a `group_var` is specified, distributions are grouped by its levels within each panel. If only one metric is specified in `metric_var`, a single panel is displayed. The function takes two main arguments: a data frame containing the computed diagnostic metrics and the pre-defined grouping information `metric_summary`; and a variable, `colour_var` whose levels are mapped to distinct colours in the resulting dot plot. 
+
+```{r, distribution-plot1, fig.height=5}
+# ungrouped distribution plot
+plot_metric_distribution(
+      metric_summary = pm_diagnostic_metrics_group, 
+      colour_var = "region"
+      )
+```
+
+This Figure shows the ungrouped distribution of all diagnostic indices. Each metric is presented in a separate panel, with each dot per country metric value and dots are coloured by region. The figure reveals distinct distributional patterns across the indices. For instance, country average dissimilarity and smoothness measures are rightly skewed with most countries having low values. This indicates that the majority of countries differ only minimally from one another and tends to follow smooth, gradual changes over time (based on the smoothness measures).
+
+```{r, distribution-plot2, fig.height=5}
+# grouped distribution plot
+plot_metric_distribution(
+      metric_summary = pm_diagnostic_metrics_group, 
+      colour_var = "region",
+      group_var = "region"
+      )
+```
+
+The grouped distribution plot shows the distribution of diagnostic indices grouped by region. The ungrouped version presents all countries together as individual dots in a single distribution per metric, the grouped version organises countries by region, making it easier to compare both within and between group metric values across regions. Across all regions, the country average dissimilarity metric is consistently right-skewed, though Sub-Saharan Africa and Middle East \& North Africa contain notable outliers that deviate substantially from other countries in their region. A similar pattern is observed in the within-group average dissimilarity metric. In the silhouette width panel, All countries in Latin America \& Caribbean and Sub-Saharan Africa have negative values, suggesting that their temporal patterns may be more aligned with countries outside their assigned groups while the three countries in the North America region have the highest silhouette width values. 
+
+
+Users can also generate the distribution plot for specific metric(s) of choice.
+
+```{r, linearity-dist, fig.height=5}
+# ungrouped distribution plot for linearity metric
+plot_metric_distribution(
+        metric_summary = pm_diagnostic_metrics_group, 
+        metric_var = "linearity",
+        colour_var = "region"
+    )
+```
+
+
+```{r,linearity-curvature-dist, fig.height=5}
+# grouped distribution plot for linearity and curvature metrics
+plot_metric_distribution(
+        metric_summary = pm_diagnostic_metrics_group, 
+        metric_var = c("linearity", "curvature"),
+        colour_var = "region",
+        group_var = "region"
+    )
+```
+
+### `plot_metric_partition()`
+
+The `plot_metric_partition()` function presents metric values for individual countries grouped by a specified grouping variable. The metric value of each country is represented by a coloured bar ordered in descending order, while a lighter-shaded rectangular bar beneath indicates the group-level average for the metric. The function takes three arguments: a data frame with the calculated diagnostic indices and the grouping information, `metric_summary`; a variable, `metric_var` within the data frame that contains the metric values; and a variable, `group_var`, with the grouping information.
+
+```{r, partition plot, fig.width=7.5, fig.height=11.5}
+plot_metric_partition(
+          metric_summary = pm_diagnostic_metrics_group,
+          metric_var = "sil_width",
+          group_var = "region"
+ )
+```
+
+North America stands out as the region with the most closely aligned data series, with Bermuda, Canada and the United States all exhibiting high positive close to $\mathrm{+}1$ silhouette widths. This indicates that these countries behave consistently in terms of their PM$_{2.5}$ air pollution trends and differ clearly from countries in other regions. In contrast, South Asia displays a mix of both positive and negative silhouette values. Notably, three countries in the region exhibit highly negative values, indicating a weaker fit within the group.
+
+### `plot_data_trajectories()`
+
+The `plot_data_trajectories()` function presents the trajectory of the data series for each country. It supports both the display of all series uniformly, and also a mode that highlight countries that fall within a specified percentile of any chosen diagnostic metric values. 
+
+**1st mode - data trajectories of all series uniformly**
+
+```{r, trajectories-plot1, fig.height=3}
+# ungrouped version
+plot_data_trajectories(pm_data)
+
+```
+
+```{r, trajectories-plot2, fig.height=5}
+# grouped version
+plot_data_trajectories(pm_data, group_var = "region")
+```
+
+**2nd mode - data trajectories with countries highlighted based on a specified metric threshold**
+
+```{r, metric-trajectories-plot1, fig.height=3}
+# ungrouped version
+plot_data_trajectories(
+        pm_data, 
+        metric_summary = pm_diagnostic_metrics, 
+        metric_var = "country_avg_dist"
+    )
+```
+
+In this Figure, countries highlighted based on the global threshold. The interactive version of the ungrouped dissimilarity plot available online via \url{https://oluwayomi-olaitan.github.io/rjournal-wdiexplorer-interactive-plots/} shows that hovering over each highlighted line displays the country name and the average dissimilarity distance value. This plot visually complements and reinforces the earlier findings from the `pm_variation` output generated by the `compute_variation()` function.
+
+```{r, metric-trajectories-plot2, fig.height=5}
+# grouped version
+plot_data_trajectories(
+        pm_data, 
+        metric_summary = pm_diagnostic_metrics_group, 
+        metric_var = "within_group_avg_dist",
+        group_var = "region"
+)
+```
+
+This Figure shows that within each region, countries are highlighted based on group-specific thresholds. Qatar stands out among all other countries in Middle East \& North Africa while Niger and Mauritania stand out in Sub-Saharan Africa. This suggests that their pollution trajectory over time are not only unusual at the global level but also distinct relative to other countries within their group. Air pollution across the African continent was found to be dominated by Saharan dust, with biomass burning identified as a major contributor, particularly in Central and West Africa.
+
+
+### `plot_parallel_coords()`
+
+The `plot_parallel_coords()` function simultaneously displays all diagnostic metrics, with each metric represented as a vertical axis. Each country is shown as an interactive line that intersects all axes, with the position along the x-axis corresponding to the diagnostic indices. To ensure comparability across metrics, all values are normalised to a scale of $0$ to $1$. 
+
+The function takes two main arguments: a data frame containing all diagnostic indices values alongside the pre-defined grouping information `diagnostic_summary` and a variable in the data frame `colour_var` used to assign colours to the parallel lines. If an additional optional argument `group_var` is specified, the function instead produces a grouped version, where metric values are normalised within each group before plotting, and the resulting plot is faceted by the specified grouping variable.
+
+```{r, parallel-plot1, fig.height=5}
+plot_parallel_coords(
+      diagnostic_summary = pm_diagnostic_metrics_group,
+      colour_var = "region"
+)
+```
+
+The interactive version of this Figure displays the parallel coordinates across all 10 diagnostic indices. Hovering over the x-axis, the tooltips show the country name of each parallel line, the correspondence metric, and its metric value. This plot shows that Countries in Sub-Saharan Africa region, display a wide spread across most diagnostics indices.
+
+```{r, parallel-plot2, fig.height=5}
+plot_parallel_coords(
+      diagnostic_summary = pm_diagnostic_metrics_group,
+      colour_var = "region",
+      group_var = "region"
+)
+```
+
+The ungrouped parallel coordinate plot reveals that countries in North America consistently recorded almost similar values, with slight difference in United States reinforcing earlier findings about the behavioural patterns of PM$_{2.5}$ air pollution levels within this region. They exhibit very low average dissimilarity among themselves, with the United States showing slightly higher values and Canada the lowest, though all remain relatively low as seen in the grouped parallel coordinate plot. Their silhouette widths are all positive and high, further supporting these findings.
+
+United Arab Emirates in the Middle East \& North Africa region, is another notable country that stands out in the grouped parallel coordinate plot, primarily due to its distinctive values across several diagnostic metrics. Notably, it records low values for both trend strength and autocorrelation indicating minimal to no consistency in directional movement and weak relationship between successive observations.
+
+Bolivia, a country in the Latin America \& Caribbean region, shown in {\color{leafgreen}leafgreen}  also emerges as a notable country that stands out in both  ungrouped and grouped parallel coordinate plots, characterised by a unique combination of high trend strength, low linearity, low crossing points, and high autocorrelation.
+
+### `plot_metric_linkview()`
+
+The interactive link view of metrics and series plot displays an interactive visualisation that connects diagnostic indices values with their corresponding series trajectories. One panel shows a scatterplot of two selected diagnostic indices (e.g., linearity and curvature), while the other shows the line plot of the data series for each country.
+
+The function takes three main arguments: a dataset containing data for a selected WDI indicator; a data frame containing the computed diagnostic indices with the pre-defined grouping information `metric_summary`; and a pair of metric variables `metric_var` within the `metric_summary` data frame used to create a scatterplot. By default, the function generates an ungrouped interactive link-based visualisation. However, if an additional optional argument `group_var` is specified, the function instead produces a grouped version of the plot faceted by the specified grouping variable.
+
+```{r, link-view1, fig.height=3.5}
+# ungrouped version
+plot_metric_linkview(
+          pm_data, 
+          metric_summary = pm_diagnostic_metrics,
+          metric_var = c("linearity", "curvature")
+        )
+```
+
+
+
+```{r, link-view2, fig.height=5}
+# grouped version
+plot_metric_linkview(
+          pm_data, 
+          metric_summary = pm_diagnostic_metrics_group,
+          metric_var = c("linearity", "curvature"),
+          group_var = "region"
+      ) 
+```
+
+In conclusion, incorporating the data pre-defined grouping structure in exploratory analysis of country-level panel data enhances the detection of meaningful patterns, outliers that were hidden when countries are explored either in isolation and as global aggregates, and other interesting temporal behaviours. By accounting for natural groupings such as regions or income categories, the approach provides a detailed characterisation of temporal patterns in the data.
+
+

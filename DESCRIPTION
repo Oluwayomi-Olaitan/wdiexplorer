@@ -1,16 +1,54 @@
 Package: wdiexplorer
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Explore World Development Indicators Data
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Oluwayomi", "Akinfenwa",
+      email = "oluwayomiakinfenwa@gmail.com",
       role = c("aut", "cre")
+    ),
+    person(
+      "Niamh", "Cahill",
+      email = "niamh.cahill@mu.ie",
+      role = c("aut","ths")
+    ),
+   person(
+      "Catherine", "Hurley",
+      email = "catherine.hurley@mu.ie",
+      role = c("aut","ths")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Provides a workflow for exploring World Development Indicators (WDI) country-level panel data. It downloads the WDI data using the 'WDI' package and compute diagnostic indices that captures the temporal behaviours of the data by incorporating the grouping structure of the data.
+    The set of diagnostic indices implemented includes; variation features, trend and shape features and sequential temporal features.
+License: MIT + file LICENSE
 Encoding: UTF-8
+Imports: dplyr,
+  tidyr,
+  tidyselect,
+  tibble,
+  tsibble,
+  WDI,
+  cluster,
+  fabletools,
+  feasts,
+  forcats,
+  ggplot2,
+  ggiraph,
+  ggtext,
+  ggdist,
+  scales,
+  patchwork,
+  ggnewscale
+Suggests:
+    knitr,
+    rmarkdown,
+    naniar,
+    testthat
+Depends: 
+    R (>= 4.1.0)
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
 LazyData: true
+URL: https://github.com/Oluwayomi-Olaitan/wdiexplorer
+VignetteBuilder: knitr
