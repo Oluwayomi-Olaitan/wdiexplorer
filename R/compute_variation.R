@@ -1,6 +1,3 @@
-utils::globalVariables(c("year", "country1", "dist", "group1",
-                    "group2", "avg_dist", "a", "b", "sil_width"))
-
 #' Compute variation features
 #'
 #' Calculates average dissimilarities between countries, group-wise country dissimilarities, and silhouette widths.
@@ -44,46 +41,46 @@ compute_variation <- function(wdi_data, diss_matrix = compute_dissimilarity(wdi_
 
   # calculate the country average dist
   country_avg_dist <- diss_data |>
-    dplyr::group_by(country1) |>
-    dplyr::filter(sum(!is.na(dist)) > 0) |> # Ensure that a country has at least one valid dist
+    dplyr::group_by(.data$country1) |>
+    dplyr::filter(sum(!is.na(.data$dist)) > 0) |> # Ensure that a country has at least one valid dist
     dplyr::summarise(
-      country_avg_dist = mean(dist, na.rm = TRUE),
+      country_avg_dist = mean(.data$dist, na.rm = TRUE),
       .groups = "drop")
 
   # silhouette calculations
 
   # for each country1, find the mean of dist if group1 == group2
   a_vals <- diss_data |>
-    dplyr::filter(group1 == group2) |>
-    dplyr::group_by(country1, group1) |>
-    dplyr::filter(sum(!is.na(dist)) > 0) |>  # Ensure that a country has at least one valid dist
-    dplyr::summarise(a = mean(dist, na.rm = TRUE),
+    dplyr::filter(.data$group1 == .data$group2) |>
+    dplyr::group_by(.data$country1, .data$group1) |>
+    dplyr::filter(sum(!is.na(.data$dist)) > 0) |>  # Ensure that a country has at least one valid dist
+    dplyr::summarise(a = mean(.data$dist, na.rm = TRUE),
                      .groups = "drop")
 
   # for each country1, find the mean of dist if group1 != group2
   neighbour_vals <- diss_data |>
-    dplyr::filter(group1 != group2) |>
-    dplyr::group_by(country1, group2) |>
-    dplyr::filter(sum(!is.na(dist)) > 0) |>  # Ensure that a country has at least one valid dist
-    dplyr::summarise(avg_dist = mean(dist, na.rm = TRUE),
+    dplyr::filter(.data$group1 != .data$group2) |>
+    dplyr::group_by(.data$country1, .data$group2) |>
+    dplyr::filter(sum(!is.na(.data$dist)) > 0) |>  # Ensure that a country has at least one valid dist
+    dplyr::summarise(avg_dist = mean(.data$dist, na.rm = TRUE),
                      .groups = "drop")
 
   # select the group with the min avg_dist
   b_vals <- neighbour_vals |>
-    dplyr::group_by(country1) |>
-    dplyr::summarise(neighbour = group2[which.min(avg_dist)],
-                     b = min(avg_dist, na.rm = TRUE),
+    dplyr::group_by(.data$country1) |>
+    dplyr::summarise(neighbour = .data$group2[which.min(.data$avg_dist)],
+                     b = min(.data$avg_dist, na.rm = TRUE),
                      .groups = "drop")
 
   # calculate the silhouette score of each country
   variation_scores <- country_avg_dist |>
     dplyr::left_join(a_vals, dplyr::join_by("country1")) |>
     dplyr::left_join(b_vals, dplyr::join_by("country1")) |>
-    dplyr::mutate(sil_width = dplyr::if_else(is.na(a),
+    dplyr::mutate(sil_width = dplyr::if_else(is.na(.data$a),
                                              0, # if a is NA, set sil_width = 0
-                                             ((b - a)/ pmax(a, b)))) |> #parrallel max value btw a and b
-    dplyr::select(country = country1, group = group1, country_avg_dist,
-                  within_group_avg_dist = a, sil_width)
+                                             ((.data$b - .data$a)/ pmax(.data$a, .data$b)))) |> #parrallel max value btw a and b
+    dplyr::select(country = .data$country1, group = .data$group1, country_avg_dist,
+                  within_group_avg_dist = .data$a, .data$sil_width)
 
 
   return(variation_scores)

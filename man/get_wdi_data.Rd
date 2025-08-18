@@ -16,5 +16,7 @@ An \code{.rds} file containing the data set for the specified indicator code.
 Create and store the data for the specified indicator code in a folder called \code{wdi_data}.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
+\dontrun{
+ pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
+ }
 }

@@ -8,7 +8,9 @@
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
+#' \dontrun{
+#'  pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
+#'  }
 get_wdi_data <- function(indicator) {
 
   # Create a folder to store the data if it does not exist
