@@ -10,7 +10,6 @@
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_variation <- compute_variation(pm_data, group_var = "region")
 compute_variation <- function(wdi_data, diss_matrix = compute_dissimilarity(wdi_data), group_var) {
 
@@ -24,12 +23,12 @@ compute_variation <- function(wdi_data, diss_matrix = compute_dissimilarity(wdi_
   # join the grouping information from the wdi_data to the diss_df
   diss_data <- diss_df |>
     dplyr::left_join(
-      wdi_data |> dplyr::select(country, tidyselect::all_of(group_var)),
+      wdi_data |> dplyr::select(.data$country, tidyselect::all_of(group_var)),
       by = c("country1" = "country"),
       multiple = "first"
     ) |>
     dplyr::left_join(
-      wdi_data |> dplyr::select(country, tidyselect::all_of(group_var)),
+      wdi_data |> dplyr::select(.data$country, tidyselect::all_of(group_var)),
       by = c("country2" = "country"),
       multiple = "first",
       suffix = c("_1", "_2")
@@ -77,8 +76,8 @@ compute_variation <- function(wdi_data, diss_matrix = compute_dissimilarity(wdi_
     dplyr::left_join(a_vals, dplyr::join_by("country1")) |>
     dplyr::left_join(b_vals, dplyr::join_by("country1")) |>
     dplyr::mutate(sil_width = dplyr::if_else(is.na(.data$a),
-                                             0, # if a is NA, set sil_width = 0
-                                             ((.data$b - .data$a)/ pmax(.data$a, .data$b)))) |> #parrallel max value btw a and b
+                                  0, # if a is NA, set sil_width = 0
+                                 ((.data$b - .data$a)/ pmax(.data$a, .data$b)))) |> #parrallel max value btw a and b
     dplyr::select(country = .data$country1, group = .data$group1, country_avg_dist,
                   within_group_avg_dist = .data$a, .data$sil_width)
 

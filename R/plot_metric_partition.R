@@ -1,5 +1,3 @@
-utils::globalVariables(c(".data", "group_avg", "colour", "fill", "PANEL"))
-
 #' Plot of metric values partitioned by grouping variable
 #'
 #' Generates bars representing the metric value of each country, countries are partitioned by the levels of a specified variable.
@@ -16,7 +14,6 @@ utils::globalVariables(c(".data", "group_avg", "colour", "fill", "PANEL"))
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 #' pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 #' plot_metric_partition(metric_summary = pm_diagnostic_metrics_group,
@@ -27,11 +24,11 @@ plot_metric_partition <- function(metric_summary, metric_var, group_var){
     dplyr::mutate(group_avg = mean(.data[[metric_var]])) |>
     dplyr::ungroup() |>
     # Re-order group_var by the group_avg
-    dplyr::mutate(group = forcats::fct_reorder(.data[[group_var]], -group_avg)) |>
+    dplyr::mutate(group = forcats::fct_reorder(.data[[group_var]], -.data$group_avg)) |>
     # Now create colours in the order of reordered groups
     dplyr::mutate(
       colour = scales::hue_pal()(length(levels(group)))[as.integer(group)],
-      country_label = paste0("<span style='colour:", colour, "'>", country, "</span>")
+      country_label = paste0("<span style='colour:", .data$colour, "'>", .data$country, "</span>")
     ) |>
     dplyr::group_by(group) |>
     dplyr::arrange(.data[[metric_var]], .by_group = TRUE) |>
@@ -43,7 +40,7 @@ plot_metric_partition <- function(metric_summary, metric_var, group_var){
     ggplot2::ggplot() +
     # Draw group average bars in the background
     ggplot2::geom_col(
-      ggplot2::aes(x = group_avg,
+      ggplot2::aes(x = .data$group_avg,
                    y = country_label, fill = group),
       width = 1, alpha = 0.25) +
     ggplot2::geom_col(
@@ -75,11 +72,11 @@ plot_metric_partition <- function(metric_summary, metric_var, group_var){
   # Extract fill colours from the first layer (group_avg bars) and
   # adding the default fill colour to the panel_groups
   default_colours <- built$data[[1]] |>
-    dplyr::select(PANEL, fill) |>
+    dplyr::select(.data$PANEL, .data$fill) |>
     dplyr::distinct()
 
   panel_groups <- built$layout$layout |>
-    dplyr::select(PANEL, group)
+    dplyr::select(.data$PANEL, .data$group)
 
   fill_colours <- panel_groups |>
     dplyr::left_join(default_colours, by = "PANEL")

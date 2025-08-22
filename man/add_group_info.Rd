@@ -19,7 +19,6 @@ A data frame containing the calculated diagnostic indices and the grouping varia
 Add grouping information of the WDI data to a metric summary
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 }

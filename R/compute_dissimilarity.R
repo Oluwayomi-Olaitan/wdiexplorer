@@ -1,5 +1,3 @@
-utils::globalVariables("year")
-
 #' Compute dissimilarity between pair of countries
 #' Calculate pairwise dissimilarities and convert the output to matrix.
 #'
@@ -13,7 +11,6 @@ utils::globalVariables("year")
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diss_mat <- compute_dissimilarity(pm_data)
 compute_dissimilarity <- function(wdi_data, index = NULL, metric = "euclidean"){
   # Identify the name of the variable in the wdi data that contains the country-year value as index
@@ -33,7 +30,7 @@ compute_dissimilarity <- function(wdi_data, index = NULL, metric = "euclidean"){
 
   # convert the wdi_data to a wider form
   data_wide <- wdi_data |>
-    dplyr::select(country, year, tidyselect::all_of(index)) |>
+    dplyr::select(.data$country, .data$year, tidyselect::all_of(index)) |>
     tidyr::pivot_wider(
       names_from = year,
       values_from = tidyselect::all_of(index)

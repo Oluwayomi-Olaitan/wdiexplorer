@@ -10,7 +10,6 @@
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_temporal <- compute_temporal_features(pm_data)
 compute_temporal_features <- function(wdi_data, index = NULL){
 
@@ -36,8 +35,8 @@ compute_temporal_features <- function(wdi_data, index = NULL){
   ))
 
   temporal_measures <- valid_data |>
-    dplyr::group_by(country) |>
-    dplyr::arrange(country, year) |> # arrange year in ascending order within countries
+    dplyr::group_by(.data$country) |>
+    dplyr::arrange(.data$country, .data$year) |> # arrange year in ascending order within countries
     dplyr::summarise(
       crossing_points = feasts::n_crossing_points(.data[[index]]),
       flat_spot = feasts::longest_flat_spot(.data[[index]]),

@@ -22,6 +22,5 @@ A data frame with columns \code{country}, \code{country_avg_dist}, \code{within_
 Calculates the collection of diagnostic indices at once
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 }

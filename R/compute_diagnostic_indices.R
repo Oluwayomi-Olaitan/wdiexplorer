@@ -1,5 +1,3 @@
-if(getRversion() >= "3.5") utils::globalVariables("group")
-
 #' Compute the set of diagnostic indices
 #'
 #' Calculates the collection of diagnostic indices at once
@@ -14,7 +12,6 @@ if(getRversion() >= "3.5") utils::globalVariables("group")
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 compute_diagnostic_indices <- function(wdi_data, index = NULL, group_var) {
   # Identify the name of the variable in the wdi data that contains the country-year value as index
@@ -38,7 +35,7 @@ compute_diagnostic_indices <- function(wdi_data, index = NULL, group_var) {
   sequential <- compute_temporal_features(wdi_data)
 
   combine_measures <- variation |>
-    dplyr::select(-group) |>
+    dplyr::select(-.data$group) |>
     dplyr::left_join(trend_shape, by = "country") |>
     dplyr::left_join(sequential, by = "country")
 

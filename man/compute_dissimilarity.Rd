@@ -24,6 +24,5 @@ Compute dissimilarity between pair of countries
 Calculate pairwise dissimilarities and convert the output to matrix.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diss_mat <- compute_dissimilarity(pm_data)
 }

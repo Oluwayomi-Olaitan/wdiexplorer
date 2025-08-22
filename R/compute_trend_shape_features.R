@@ -1,5 +1,3 @@
-utils::globalVariables(c(":=", "year", "country", "trend_strength", "linearity", "curvature"))
-
 #' Compute trend and shape features
 #'
 #' Calculates trend strength, linearity, and curvature using the `feasts` and `fabletools` packages functionality.
@@ -9,10 +7,10 @@ utils::globalVariables(c(":=", "year", "country", "trend_strength", "linearity",
 #' Defaults to `NULL`
 #'
 #' @returns A data frame with columns `country`, `trend_strength`, `linearity`, `curvature`, and `smoothness`.
+#' @importFrom data.table :=
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #'pm_trend_shape <- compute_trend_shape_features(pm_data)
 compute_trend_shape_features <- function(wdi_data, index = NULL){
   # Identify the name of the variable in the wdi data that contains the country-year value as index
@@ -39,11 +37,11 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
 
   # calculate smoothness
   smoothness <- valid_data |>
-    dplyr::arrange(country, year) |>
-    dplyr::group_by(country) |>
+    dplyr::arrange(.data$country, .data$year) |>
+    dplyr::group_by(.data$country) |>
     dplyr::mutate(
       diff = (.data[[index]] - dplyr::lag(.data[[index]])) /
-        (year - dplyr::lag(year))
+        (.data$year - dplyr::lag(.data$year))
     ) |>
     dplyr::summarise(
       smoothness = stats::sd(diff, na.rm = TRUE),
@@ -53,8 +51,8 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
   # check if valid data has missing entries, if there are missing points, replace by linear interpolation, else return the valid data
   if(any(is.na(valid_data[[index]]))) {
     complete_data <- valid_data |>
-      dplyr::group_by(country) |>
-      dplyr::arrange(year) |>
+      dplyr::group_by(.data$country) |>
+      dplyr::arrange(.data$year) |>
       dplyr::mutate(!!index := stats::approx(
         x = year[!is.na(.data[[index]])], # take the non-missing years as x
         y = .data[[index]][!is.na(.data[[index]])], # take the non-missing values as y
@@ -74,13 +72,13 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
   # the features from the feasts package
   # convert the data to tsibble
   data_tsibble <- tsibble::as_tsibble(complete_data,
-                                      index = year,
-                                      key = country,
+                                      index = .data$year,
+                                      key = .data$country,
                                       regular = TRUE)
 
   trend_features <- data_tsibble |>
     fabletools::features(.data[[index]], feasts::feat_stl) |>
-    dplyr::select(country, trend_strength, linearity, curvature)
+    dplyr::select(.data$country, .data$trend_strength, .data$linearity, .data$curvature)
 
   trend_shape_features <- trend_features |>
     dplyr::left_join(smoothness, by = "country")

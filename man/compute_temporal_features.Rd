@@ -19,6 +19,5 @@ A data frame with columns \code{country}, \code{crossing_points}, \code{flat_spo
 Calculates number of crossing points, longest flat spot using the \code{feasts} package functionality and an additional time series feature - autocorrelation.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_temporal <- compute_temporal_features(pm_data)
 }

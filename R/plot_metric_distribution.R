@@ -1,6 +1,3 @@
-utils::globalVariables(c(".data", "metrics", "diagnostics"))
-
-
 #' Plot distribution(s) of diagnostic metric(s)
 #'
 #' Generates faceted `ggplot` displaying the distribution of either selected metric(s) or all the set of diagnostic indices.
@@ -21,7 +18,6 @@ utils::globalVariables(c(".data", "metrics", "diagnostics"))
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 #' pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 #' plot_metric_distribution(pm_diagnostic_metrics_group, colour_var = "region", group_var = "region")
@@ -32,12 +28,12 @@ plot_metric_distribution <- function(metric_summary, colour_var, metric_var = NU
     # pivot_long all the metric summaries
     summary_long <- metric_summary |>
       tidyr::pivot_longer(
-        -c(country, region, income),
+        -c(.data$country, .data$region, .data$income),
         names_to = "diagnostics",
         values_to = "metrics"
       ) |>
       dplyr::mutate(
-        diagnostics = factor(diagnostics, levels = unique(diagnostics))
+        diagnostics = factor(.data$diagnostics, levels = unique(.data$diagnostics))
       )
   } else{
     # one or more selected features
@@ -48,7 +44,7 @@ plot_metric_distribution <- function(metric_summary, colour_var, metric_var = NU
         values_to = "metrics"
       ) |>
       dplyr::mutate(
-        diagnostics = factor(diagnostics, levels = unique(diagnostics)),
+        diagnostics = factor(.data$diagnostics, levels = unique(.data$diagnostics)),
 
       )
   }
@@ -58,11 +54,11 @@ plot_metric_distribution <- function(metric_summary, colour_var, metric_var = NU
     P <- summary_long |>
       ggplot2::ggplot(
         ggplot2::aes(
-          x = metrics, fill = forcats::fct_infreq(.data[[colour_var]]),
+          x = .data$metrics, fill = forcats::fct_infreq(.data[[colour_var]]),
           group = NA, order = forcats::fct_infreq(.data[[colour_var]]))
       ) +
       ggdist::geom_dots(slab_color = NA) +
-      ggplot2::facet_wrap(~diagnostics, scales = "free") +
+      ggplot2::facet_wrap(~.data$diagnostics, scales = "free") +
       ggplot2::labs(x = "Metric Values", y = "", fill = colour_var) +
       ggplot2::theme(
         axis.text.y = ggplot2::element_blank(),
@@ -74,11 +70,11 @@ plot_metric_distribution <- function(metric_summary, colour_var, metric_var = NU
     P <- summary_long |>
       ggplot2::ggplot(
         ggplot2::aes(
-          x = metrics, y = forcats::fct_infreq(.data[[group_var]]),
+          x = .data$metrics, y = forcats::fct_infreq(.data[[group_var]]),
           fill = forcats::fct_infreq(.data[[colour_var]]), group = NA, order = .data[[group_var]])
       ) +
       ggdist::geom_dots(slab_color = NA) +
-      ggplot2::facet_wrap(~diagnostics, scales = "free") +
+      ggplot2::facet_wrap(~.data$diagnostics, scales = "free") +
       ggplot2::labs(x = "Metric Values", y = "", fill = colour_var) +
       ggplot2::theme(
         axis.text.y = ggplot2::element_blank(),

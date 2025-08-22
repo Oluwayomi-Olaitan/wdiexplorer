@@ -1,5 +1,3 @@
-utils::globalVariables(c("year", "n"))
-
 #' Extract valid data from the WDI data
 #' Reports countries with no data points as well as years for which no data are available.
 #'
@@ -11,7 +9,6 @@ utils::globalVariables(c("year", "n"))
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' get_valid_data(pm_data)
 get_valid_data <- function(wdi_data, index = NULL) {
   # Identify the name of the variable in the wdi data that contains the country-year value as index
@@ -22,9 +19,9 @@ get_valid_data <- function(wdi_data, index = NULL) {
 
   # Identify years with no data points
   invalid_years <- wdi_data |>
-    dplyr::group_by(year) |>
+    dplyr::group_by(.data$year) |>
     dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
-    dplyr::filter(n==0) |>
+    dplyr::filter(.data$n==0) |>
     dplyr::pull(year)
 
   #return message about missing years
@@ -38,10 +35,10 @@ get_valid_data <- function(wdi_data, index = NULL) {
 
   # Identify country with no data points
   invalid_countries <- wdi_data |>
-    dplyr::group_by(country) |>
+    dplyr::group_by(.data$country) |>
     dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
-    dplyr::filter(n==0) |>
-    dplyr::pull(country)
+    dplyr::filter(.data$n==0) |>
+    dplyr::pull(.data$country)
 
   #return message about missing countries
   country_message <- if(length(invalid_countries) > 0) {
@@ -54,11 +51,11 @@ get_valid_data <- function(wdi_data, index = NULL) {
 
   # filter valid countries and years where actual data were collected, ignoring the WDI defaults
   valid_data <- wdi_data |>
-    dplyr::arrange(year) |> # arrange year in ascending order
-    dplyr::group_by(year) |>
+    dplyr::arrange(.data$year) |> # arrange year in ascending order
+    dplyr::group_by(.data$year) |>
     dplyr::filter(sum(!is.na(.data[[index]])) > 0) |> #Ensure a year level has at least one valid point
     dplyr::ungroup() |>
-    dplyr::group_by(country) |>
+    dplyr::group_by(.data$country) |>
     dplyr::filter(sum(!is.na(.data[[index]])) > 0) |> #Ensure a country level has at least one valid point
     dplyr::ungroup()
 

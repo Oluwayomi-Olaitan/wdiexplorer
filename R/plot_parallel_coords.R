@@ -1,5 +1,3 @@
-if(getRversion() >= "3.5") utils::globalVariables("metrics_norm")
-
 #' Plot of diagnostic metrics parallel coordinate plot
 #'
 #' Generates interactive parallel coordinate plots of all diagnostic indices.
@@ -17,7 +15,6 @@ if(getRversion() >= "3.5") utils::globalVariables("metrics_norm")
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 #' pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 #' plot_parallel_coords(pm_diagnostic_metrics_group, colour_var = "region", group_var = "region")
@@ -26,50 +23,51 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
   # pivot_long all the metric summaries
   summary_long <- diagnostic_summary |>
     tidyr::pivot_longer(
-      -c(country, region, income),
+      -c(.data$country, .data$region, .data$income),
       names_to = "diagnostics",
       values_to = "metrics"
     )
 
+
   # scale the metrics
   if(is.null(group_var)){
     # the ungrouped parallel coordinate plot
-
+    summary_long$metrics_norm <- NULL
     # scale the metrics - global normalisation
     scaled_metrics <- summary_long |>
-      dplyr::group_by(diagnostics) |>
+      dplyr::group_by(.data$diagnostics) |>
       dplyr::mutate(
-        metrics_norm = scales::rescale(metrics, to = c(0, 1),
+        metrics_norm = scales::rescale(.data$metrics, to = c(0, 1),
                                        na.rm = TRUE)) |>
       dplyr::ungroup() |>
       dplyr::mutate(
-        diagnostics = factor(diagnostics,
-                             levels = unique(diagnostics))
+        diagnostics = factor(.data$diagnostics,
+                             levels = unique(.data$diagnostics))
       )
 
     P <- scaled_metrics |>
       ggplot2::ggplot() +
       ggiraph::geom_point_interactive(
         ggplot2::aes(
-          x = diagnostics,
-          y = metrics_norm,
-          group = country,
+          x = .data$diagnostics,
+          y = .data$metrics_norm,
+          group = .data$country,
           color = .data[[colour_var]],
           tooltip = paste(
-            "Country:", country, "<br/>",
-            diagnostics, ":", sprintf("%.2f", metrics)),
-          data_id = country
+            "Country:", .data$country, "<br/>",
+            .data$diagnostics, ":", sprintf("%.2f", .data$metrics)),
+          data_id = .data$country
         ),
         alpha = 0.3, size = 0.8
       ) +
       ggiraph::geom_line_interactive(
         ggplot2::aes(
-          x = diagnostics,
-          y = metrics_norm,
-          group = country,
-          color = region,
-          tooltip = country,
-          data_id = country
+          x = .data$diagnostics,
+          y = .data$metrics_norm,
+          group = .data$country,
+          color = .data$region,
+          tooltip = .data$country,
+          data_id = .data$country
         ), alpha = 0.6
       ) +
       ggplot2::scale_x_discrete(expand = c(0, 0.2)) +
@@ -83,39 +81,39 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
   } else{
     # scale the metrics - group-wise normalisation
     scaled_metrics <- summary_long |>
-      dplyr::group_by(.data[[group_var]], diagnostics) |>
+      dplyr::group_by(.data[[group_var]], .data$diagnostics) |>
       dplyr::mutate(
-        metrics_norm = scales::rescale(metrics, to = c(0, 1),
+        metrics_norm = scales::rescale(.data$metrics, to = c(0, 1),
                                        na.rm = TRUE)) |>
       dplyr::ungroup() |>
       dplyr::mutate(
-        diagnostics = factor(diagnostics,
-                             levels = unique(diagnostics))
+        diagnostics = factor(.data$diagnostics,
+                             levels = unique(.data$diagnostics))
       )
     # the grouped parallel coordinate plot
     P <- scaled_metrics |>
       ggplot2::ggplot() +
       ggiraph::geom_point_interactive(
         ggplot2::aes(
-          x = diagnostics,
-          y = metrics_norm,
-          group = country,
+          x = .data$diagnostics,
+          y = .data$metrics_norm,
+          group = .data$country,
           color = .data[[group_var]],
           tooltip = paste(
-            "Country:", country, "<br/>",
-            diagnostics, ":", sprintf("%.2f", metrics)),
-          data_id = country
+            "Country:", .data$country, "<br/>",
+            .data$diagnostics, ":", sprintf("%.2f", .data$metrics)),
+          data_id = .data$country
         ),
         alpha = 0.3, size = 0.8
       ) +
       ggiraph::geom_line_interactive(
         ggplot2::aes(
-          x = diagnostics,
-          y = metrics_norm,
-          group = country,
-          color = region,
-          tooltip = country,
-          data_id = country
+          x = .data$diagnostics,
+          y = .data$metrics_norm,
+          group = .data$country,
+          color = .data$region,
+          tooltip = .data$country,
+          data_id = .data$country
         ), alpha = 0.6
       ) +
       ggplot2::facet_wrap(~.data[[group_var]]) +

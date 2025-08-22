@@ -24,6 +24,5 @@ A data frame with columns \code{country}, \code{group}, \code{country_avg_dist},
 Calculates average dissimilarities between countries, group-wise country dissimilarities, and silhouette widths.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_variation <- compute_variation(pm_data, group_var = "region")
 }

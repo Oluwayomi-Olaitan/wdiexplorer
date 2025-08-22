@@ -24,7 +24,6 @@ The metric value of each country is represented by a coloured bar ordered in des
 Countries in each group-level are represented by the same colour.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 plot_metric_partition(metric_summary = pm_diagnostic_metrics_group,

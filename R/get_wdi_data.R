@@ -33,7 +33,7 @@ get_wdi_data <- function(indicator) {
       country = "all",
       extra = TRUE
     ) |>
-      dplyr::filter(region != "Aggregates") |> # filter out countries additional entries that are not country names
+      dplyr::filter(.data$region != "Aggregates") |> # filter out countries additional entries that are not country names
       dplyr::mutate(dplyr::across(
         dplyr::where(is.character),
         ~ gsub("'", "", .)

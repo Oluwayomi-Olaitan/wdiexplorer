@@ -19,6 +19,5 @@ A data frame with columns \code{country}, \code{trend_strength}, \code{linearity
 Calculates trend strength, linearity, and curvature using the \code{feasts} and \code{fabletools} packages functionality.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_trend_shape <- compute_trend_shape_features(pm_data)
 }

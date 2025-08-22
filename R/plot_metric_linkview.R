@@ -20,7 +20,6 @@
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 #' pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 #' plot_metric_linkview(pm_data, metric_summary = pm_diagnostic_metrics,
@@ -38,11 +37,11 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
       ggiraph::geom_line_interactive(
         data = stats::na.omit(wdi_data),
         ggplot2::aes(
-          x = year,
+          x = .data$year,
           y = .data[[index]],
-          group = country,
-          tooltip = country,
-          data_id = country
+          group = .data$country,
+          tooltip = .data$country,
+          data_id = .data$country
         ),
         color = "grey35"
       ) +
@@ -56,8 +55,8 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
         ggplot2::aes(
           x = .data[[metric_var[[1]]]],
           y = .data[[metric_var[[2]]]],
-          tooltip = country,
-          data_id = country
+          tooltip = .data$country,
+          data_id = .data$country
         ),
         position = ggplot2::position_jitter(height = 0.2),
         color = "grey25"
@@ -68,11 +67,11 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
       ggiraph::geom_line_interactive(
         data = stats::na.omit(wdi_data),
         ggplot2::aes(
-          x = year,
+          x = .data$year,
           y = .data[[index]],
-          group = country,
-          tooltip = country,
-          data_id = country
+          group = .data$country,
+          tooltip = .data$country,
+          data_id = .data$country
         ),
         color = "grey35"
       ) +
@@ -87,8 +86,8 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
         ggplot2::aes(
           x = .data[[metric_var[[1]]]],
           y = .data[[metric_var[[2]]]],
-          tooltip = country,
-          data_id = country
+          tooltip = .data$country,
+          data_id = .data$country
         ),
         position = ggplot2::position_jitter(height = 0.2),
         color = "grey25"

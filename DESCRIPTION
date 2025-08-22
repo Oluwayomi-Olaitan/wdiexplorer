@@ -28,6 +28,8 @@ Imports: dplyr,
   tidyselect,
   tibble,
   tsibble,
+  data.table,
+  rlang,
   WDI,
   cluster,
   fabletools,
@@ -51,4 +53,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 LazyData: true
 URL: https://github.com/Oluwayomi-Olaitan/wdiexplorer
+BugReports: https://github.com/Oluwayomi-Olaitan/wdiexplorer/issues
 VignetteBuilder: knitr

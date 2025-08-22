@@ -21,6 +21,5 @@ Extract valid data from the WDI data
 Reports countries with no data points as well as years for which no data are available.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 get_valid_data(pm_data)
 }

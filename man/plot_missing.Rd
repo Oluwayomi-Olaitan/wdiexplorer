@@ -21,6 +21,5 @@ A plot that provides a structured overview of missing data and shows its distrib
 Missingness plot of the indicator data
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 plot_missing(pm_data, group_var = "region")
 }

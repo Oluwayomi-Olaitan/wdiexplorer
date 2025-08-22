@@ -37,7 +37,6 @@ and the data trajectories are presented in another panel.
 Hovering over a point in the scatterplot highlights the corresponding trajectory with the country name, and vice versa.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 plot_metric_linkview(pm_data, metric_summary = pm_diagnostic_metrics,

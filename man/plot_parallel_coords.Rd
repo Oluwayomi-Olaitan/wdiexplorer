@@ -24,7 +24,6 @@ Generates interactive parallel coordinate plots of all diagnostic indices.
 Hovering over a line across x-axis displays the country name, corresponding metric and its metric value.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 plot_parallel_coords(pm_diagnostic_metrics_group, colour_var = "region", group_var = "region")

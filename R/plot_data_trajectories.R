@@ -1,5 +1,3 @@
-utils::globalVariables(c("year", "quantile", "reorder", "threshold"))
-
 #' Plot of data trajectories
 #'
 #' Generates the trajectory of each country data series and supports two plot modes: The display of all series uniformly or a mode that highlight countries with metric values within a specified percentile.
@@ -26,7 +24,6 @@ utils::globalVariables(c("year", "quantile", "reorder", "threshold"))
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 #' pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 #' plot_data_trajectories(pm_data, group_var = "region",
@@ -47,11 +44,11 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
         ggiraph::geom_line_interactive(
           data = stats::na.omit(wdi_data),
           ggplot2::aes(
-            x = year,
+            x = .data$year,
             y = .data[[index]],
-            group = country,
-            tooltip = country,
-            data_id = country
+            group = .data$country,
+            tooltip = .data$country,
+            data_id = .data$country
           ),
           colour = "grey65"
         ) +
@@ -63,11 +60,11 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
         ggiraph::geom_line_interactive(
           data = stats::na.omit(wdi_data),
           ggplot2::aes(
-            x = year,
+            x = .data$year,
             y = .data[[index]],
-            group = country,
-            tooltip = country,
-            data_id = country
+            group = .data$country,
+            tooltip = .data$country,
+            data_id = .data$country
           ),
           colour = "grey65"
         ) +
@@ -86,11 +83,11 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
       # global threshold
       # joining the metric_data to the wdi_data.
       metric_data <- wdi_data |>
-        dplyr::select(country, region, income, year, tidyselect::all_of(index)) |>
+        dplyr::select(.data$country, .data$region, .data$income, .data$year, tidyselect::all_of(index)) |>
         dplyr::left_join(metric_summary, by = "country")
 
       # calculate the cutoff for the country metrics.
-      cutoff_value <- quantile(metric_summary[[metric_var]], probs = percentile, na.rm = TRUE)
+      cutoff_value <- stats::quantile(metric_summary[[metric_var]], probs = percentile, na.rm = TRUE)
 
       # the plot
       P <- ggplot2::ggplot() +
@@ -98,9 +95,9 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
           data = stats::na.omit(metric_data) |>
             dplyr::filter(.data[[metric_var]] <= cutoff_value),
           ggplot2::aes(
-            x = year,
+            x = .data$year,
             y = .data[[index]],
-            group = reorder(country, .data[[metric_var]]),
+            group = stats::reorder(.data$country, .data[[metric_var]]),
             colour = "below"
           )
         ) +
@@ -115,14 +112,14 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
           data = stats::na.omit(metric_data) |>
             dplyr::filter(.data[[metric_var]] > cutoff_value),
           ggplot2::aes(
-            x = year,
+            x = .data$year,
             y = .data[[index]],
-            group = reorder(country, .data[[metric_var]]),
+            group = stats::reorder(.data$country, .data[[metric_var]]),
             colour = .data[[metric_var]],
             tooltip = paste(
-              "Country:", country,
+              "Country:", .data$country,
               "<br>Value:", sprintf("%.2f", .data[[metric_var]])),
-            data_id = country
+            data_id = .data$country
           )
         ) +
         ggplot2::scale_colour_viridis_c(
@@ -140,25 +137,25 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
       group_metric <- metric_summary |>
         dplyr::group_by(.data[[group_var]]) |>
         dplyr::mutate(
-          threshold = quantile(.data[[metric_var]],
+          threshold = stats::quantile(.data[[metric_var]],
                                probs = percentile,
                                na.rm = TRUE)
         )
 
       # join the group_metric to the wdi_data
       wdi_data |>
-        dplyr::select(country, year, tidyselect::all_of(index)) |>
+        dplyr::select(.data$country, .data$year, tidyselect::all_of(index)) |>
         dplyr::left_join(group_metric, by = "country") -> group_metric_data
 
       # the faceted plot
       P <- ggplot2::ggplot() +
         ggplot2::geom_line(
           data = stats::na.omit(group_metric_data) |>
-            dplyr::filter(.data[[metric_var]] <= threshold),
+            dplyr::filter(.data[[metric_var]] <= .data$threshold),
           ggplot2::aes(
-            x = year,
+            x = .data$year,
             y = .data[[index]],
-            group = reorder(country, .data[[metric_var]]),
+            group = stats::reorder(.data$country, .data[[metric_var]]),
             colour = "below"
           )
         ) +
@@ -171,16 +168,16 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
         ggnewscale::new_scale_color() +
         ggiraph::geom_line_interactive(
           data = stats::na.omit(group_metric_data) |>
-            dplyr::filter(.data[[metric_var]] > threshold),
+            dplyr::filter(.data[[metric_var]] > .data$threshold),
           ggplot2::aes(
-            x = year,
+            x = .data$year,
             y = .data[[index]],
-            group = reorder(country, .data[[metric_var]]),
+            group = stats::reorder(.data$country, .data[[metric_var]]),
             colour = .data[[metric_var]],
             tooltip = paste(
-              "Country:", country,
+              "Country:", .data$country,
               "<br>Value:", sprintf("%.2f", .data[[metric_var]])),
-            data_id = country
+            data_id = .data$country
           )
         ) +
         ggplot2::scale_colour_viridis_c(

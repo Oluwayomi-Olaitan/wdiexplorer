@@ -58,7 +58,7 @@ tibble::glimpse(pm_data)
 
 A helpful initial check is to highlight where data is missing across time and countries. It is essential to summarise the data and identify countries with missing data. To facilitate this, we extend the functionality of the `vis_miss()` function from the `naniar` package by introducing the `plot_miss()` function. This function takes two arguments: `wdi_data` representing any WDI data object, and `group_var` a pre-defined grouping variable within the data set. The resulting grouped missingness plot arranges countries according to their respective grouping levels, facilitating a structured overview of missing data.
 
-```{r, missingness-plot, fig.width=7.5, fig.height=11.5}
+```{r, missingness-plot, fig.width=7.5, fig.height=11.5, fig.cap="Missingness plot, providing information about the years and countries with missing entries and the overall percentages of missing and present data. It also shows that no data points are available across all countries during the years 1960 to 1989 and 2021 to 2024."}
 plot_missing(wdi_data = pm_data, group_var = "region")
 ```
 
@@ -178,7 +178,7 @@ The third stage of the workflow utilises visual summaries to detect potentially 
 
 The `plot_metric_distribution()` generates distribution plot of all set of diagnostic indices or some selected metric(s). By default, the distribution(s) are ungrouped; if a `group_var` is specified, distributions are grouped by its levels within each panel. If only one metric is specified in `metric_var`, a single panel is displayed. The function takes two main arguments: a data frame containing the computed diagnostic metrics and the pre-defined grouping information `metric_summary`; and a variable, `colour_var` whose levels are mapped to distinct colours in the resulting dot plot. 
 
-```{r, distribution-plot1, fig.height=5}
+```{r, distribution-plot1, fig.height=5, fig.cap="Distribution of diagnostic indices where each panel represents a different metric. It shows the spread of the metric values across countries, with each dot representing a country and coloured by region. Countries in the North America region stand out with the lowest within-group average dissimilarity and the highest silhouette width values."}
 # ungrouped distribution plot
 plot_metric_distribution(
       metric_summary = pm_diagnostic_metrics_group, 
@@ -188,7 +188,7 @@ plot_metric_distribution(
 
 This Figure shows the ungrouped distribution of all diagnostic indices. Each metric is presented in a separate panel, with each dot per country metric value and dots are coloured by region. The figure reveals distinct distributional patterns across the indices. For instance, country average dissimilarity and smoothness measures are rightly skewed with most countries having low values. This indicates that the majority of countries differ only minimally from one another and tends to follow smooth, gradual changes over time (based on the smoothness measures).
 
-```{r, distribution-plot2, fig.height=5}
+```{r, distribution-plot2, fig.height=5, fig.cap="Distribution of diagnostic indices grouped by region. Each panel displays a metric, with countries organised by region to facilitate within and between group comparisons. The plot reveals region-specific patterns and outliers. Sub-Saharan Africa and East Asia & Pacific regions show wider spread while North America region are closely knitted."}
 # grouped distribution plot
 plot_metric_distribution(
       metric_summary = pm_diagnostic_metrics_group, 
@@ -202,7 +202,7 @@ The grouped distribution plot shows the distribution of diagnostic indices group
 
 Users can also generate the distribution plot for specific metric(s) of choice.
 
-```{r, linearity-dist, fig.height=5}
+```{r, linearity-dist, fig.height=5, fig.cap="Distribution of the linearity metric coloured by region."}
 # ungrouped distribution plot for linearity metric
 plot_metric_distribution(
         metric_summary = pm_diagnostic_metrics_group, 
@@ -212,7 +212,7 @@ plot_metric_distribution(
 ```
 
 
-```{r,linearity-curvature-dist, fig.height=5}
+```{r,linearity-curvature-dist, fig.height=5, fig.cap="Distribution of the linearity and curvature metrics coloured by region and grouped by region."}
 # grouped distribution plot for linearity and curvature metrics
 plot_metric_distribution(
         metric_summary = pm_diagnostic_metrics_group, 
@@ -226,7 +226,7 @@ plot_metric_distribution(
 
 The `plot_metric_partition()` function presents metric values for individual countries grouped by a specified grouping variable. The metric value of each country is represented by a coloured bar ordered in descending order, while a lighter-shaded rectangular bar beneath indicates the group-level average for the metric. The function takes three arguments: a data frame with the calculated diagnostic indices and the grouping information, `metric_summary`; a variable, `metric_var` within the data frame that contains the metric values; and a variable, `group_var`, with the grouping information.
 
-```{r, partition plot, fig.width=7.5, fig.height=11.5}
+```{r, partition plot, fig.width=7.5, fig.height=11.5, fig.cap = "Country silhouette widths, grouped by region, with the average silhouette width for each region underlaid beneath the country bars. Countries in Sub-Saharan Africa and East Asia & Pacific regions all exhibit negative silhouette widths, suggesting that they do not fit well within their assigned regional groupings based on their data series, or that their behaviour may be more similar to countries in other regions."}
 plot_metric_partition(
           metric_summary = pm_diagnostic_metrics_group,
           metric_var = "sil_width",
@@ -242,20 +242,20 @@ The `plot_data_trajectories()` function presents the trajectory of the data seri
 
 **1st mode - data trajectories of all series uniformly**
 
-```{r, trajectories-plot1, fig.height=3}
+```{r, trajectories-plot1, fig.height=3, fig.cap="The country line plots of PM2.5 air pollution dataset. Countries with average dissimilarity distance values below or at the 95th percentile are displayed in grey, while countries with the top 5% average dissimilarity between itself and other countries are highlighted using a colour gradient. Qatar and Niger, countries displayed in purple-blue exhibit the highest dissimilarity values."}
 # ungrouped version
 plot_data_trajectories(pm_data)
 
 ```
 
-```{r, trajectories-plot2, fig.height=5}
+```{r, trajectories-plot2, fig.height=5, fig.cap="The PM2.5 air pollution data trajectories faceted by region groupings with group-based threshold computations rather than a uniform global threshold for highlighting countries with the top percentile. Qatar stood out with the highest dissimilarity values across other countries in Middle East & North Africa while Niger, Mauritania and Senegal are identified as countries with the highest dissimilarity within the Sub-Saharan Africa region."}
 # grouped version
 plot_data_trajectories(pm_data, group_var = "region")
 ```
 
 **2nd mode - data trajectories with countries highlighted based on a specified metric threshold**
 
-```{r, metric-trajectories-plot1, fig.height=3}
+```{r, metric-trajectories-plot1, fig.height=3, fig.cap="The ungrouped PM2.5 air pollution data trajectories with highlighted countries based on the linearity metric values. Countries with absolute linearity values below or at the 96th percentile are displayed in grey, while countries within the top 4% absolute linearity values are displayed using a colour gradient. All highlighted countries have negative linear trend, indicating that the most pronounced linear trends in the data reflect strong declines in the decomposed series."}
 # ungrouped version
 plot_data_trajectories(
         pm_data, 
@@ -264,9 +264,9 @@ plot_data_trajectories(
     )
 ```
 
-In this Figure, countries highlighted based on the global threshold. The interactive version of the ungrouped dissimilarity plot available online via \url{https://oluwayomi-olaitan.github.io/rjournal-wdiexplorer-interactive-plots/} shows that hovering over each highlighted line displays the country name and the average dissimilarity distance value. This plot visually complements and reinforces the earlier findings from the `pm_variation` output generated by the `compute_variation()` function.
+In this Figure, countries highlighted based on the global threshold. The interactive version of the ungrouped dissimilarity plot available online via \url{https://oluwayomi-olaitan.github.io/wdiexplorer-interactive-plots/} shows that hovering over each highlighted line displays the country name and the average dissimilarity distance value. This plot visually complements and reinforces the earlier findings from the `pm_variation` output generated by the `compute_variation()` function.
 
-```{r, metric-trajectories-plot2, fig.height=5}
+```{r, metric-trajectories-plot2, fig.height=5, fig.cap="The PM2.5 air pollution data trajectories faceted by region groupings with group-based threshold with highlighted countries based on the linearity metric values. Countries with absolute linearity values below or at the 96th percentile are displayed in grey, while countries within the top 4% absolute linearity values are displayed using a colour gradient."}
 # grouped version
 plot_data_trajectories(
         pm_data, 
@@ -285,7 +285,7 @@ The `plot_parallel_coords()` function simultaneously displays all diagnostic met
 
 The function takes two main arguments: a data frame containing all diagnostic indices values alongside the pre-defined grouping information `diagnostic_summary` and a variable in the data frame `colour_var` used to assign colours to the parallel lines. If an additional optional argument `group_var` is specified, the function instead produces a grouped version, where metric values are normalised within each group before plotting, and the resulting plot is faceted by the specified grouping variable.
 
-```{r, parallel-plot1, fig.height=5}
+```{r, parallel-plot1, fig.height=5, fig.cap = "The static version of the parallel coordinate plot displaying the metric values across all the diagnostic indices. The metric values are normalised to a scale of 0 to 1. Countries in Sub-Saharan Africa region, shown in magenta, display a wide spread across most diagnostics indices."}
 plot_parallel_coords(
       diagnostic_summary = pm_diagnostic_metrics_group,
       colour_var = "region"
@@ -294,7 +294,7 @@ plot_parallel_coords(
 
 The interactive version of this Figure displays the parallel coordinates across all 10 diagnostic indices. Hovering over the x-axis, the tooltips show the country name of each parallel line, the correspondence metric, and its metric value. This plot shows that Countries in Sub-Saharan Africa region, display a wide spread across most diagnostics indices.
 
-```{r, parallel-plot2, fig.height=5}
+```{r, parallel-plot2, fig.height=5, fig.cap="The static version of the parallel coordinate plot displaying the metric values across all diagnostic indices grouped by region. The metric values are normalised to a scale of 0 to 1 within each group. Countries in Sub-Saharan Africa region, shown in magenta, display a wide spread across most diagnostics indices."}
 plot_parallel_coords(
       diagnostic_summary = pm_diagnostic_metrics_group,
       colour_var = "region",
@@ -314,7 +314,7 @@ The interactive link view of metrics and series plot displays an interactive vis
 
 The function takes three main arguments: a dataset containing data for a selected WDI indicator; a data frame containing the computed diagnostic indices with the pre-defined grouping information `metric_summary`; and a pair of metric variables `metric_var` within the `metric_summary` data frame used to create a scatterplot. By default, the function generates an ungrouped interactive link-based visualisation. However, if an additional optional argument `group_var` is specified, the function instead produces a grouped version of the plot faceted by the specified grouping variable.
 
-```{r, link-view1, fig.height=3.5}
+```{r, link-view1, fig.height=3.5, fig.cap="The static version of the interactive link-based plot showing the relationship between linearity and curvature metrics across all countries. Each point in the scatterplot represents a country, and hovering a point reveals its corresponding data series."}
 # ungrouped version
 plot_metric_linkview(
           pm_data, 
@@ -325,7 +325,7 @@ plot_metric_linkview(
 
 
 
-```{r, link-view2, fig.height=5}
+```{r, link-view2, fig.height=5, fig.cap="The static version of the grouped link-based plot showing the relationship between linearity and curvature metrics across all countries faceted by region. Each point in the scatterplot represents a country, and hovering a point reveals its corresponding data series in its panel."}
 # grouped version
 plot_metric_linkview(
           pm_data, 

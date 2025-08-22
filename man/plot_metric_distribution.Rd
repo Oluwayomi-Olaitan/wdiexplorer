@@ -35,7 +35,6 @@ By default, distribution(s) are ungrouped; if a \code{group_var} is specified, d
 If only one metric is specified in \code{metric_var}, a single panel is displayed.
 }
 \examples{
-pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 pm_diagnostic_metrics <- compute_diagnostic_indices(pm_data, group_var = "region")
 pm_diagnostic_metrics_group <- add_group_info(metric_summary = pm_diagnostic_metrics,pm_data)
 plot_metric_distribution(pm_diagnostic_metrics_group, colour_var = "region", group_var = "region")

@@ -11,7 +11,6 @@ utils::globalVariables(c("year", "group", "colour", "country_label"))
 #' @export
 #'
 #' @examples
-#' pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
 #' plot_missing(pm_data, group_var = "region")
 plot_missing <- function(wdi_data, index = NULL, group_var){
   # Identify the name of the variable in the wdi data that contains the country-year value as index
@@ -21,13 +20,13 @@ plot_missing <- function(wdi_data, index = NULL, group_var){
   }
 
   data_long <- wdi_data |>
-    dplyr::select(country, year, tidyselect::all_of(group_var), tidyselect::all_of(index)) |>
+    dplyr::select(.data$country, .data$year, tidyselect::all_of(group_var), tidyselect::all_of(index)) |>
     dplyr::mutate(
       missing = is.na(.data[[index]]),
       group = as.factor(.data[[group_var]]),
       # colors in the order of the group levels
       colour = scales::hue_pal()(length(levels(group)))[as.integer(group)],
-      country_label = paste0("<span style='color:", colour, "'>", country, "</span>"),
+      country_label = paste0("<span style='color:", colour, "'>", .data$country, "</span>"),
       # reverse the countries
       country_label = forcats::fct_rev(country_label)
     )
@@ -42,7 +41,7 @@ plot_missing <- function(wdi_data, index = NULL, group_var){
   # missingness plot
   P <- data_long |>
     ggplot2::ggplot() +
-    ggplot2::aes(x = year, y = country_label, fill = missing) +
+    ggplot2::aes(x = .data$year, y = country_label, fill = missing) +
     ggplot2::geom_raster() +
     ggplot2::scale_fill_manual(
       name = " ",
