@@ -3,6 +3,3 @@ template:
   bootstrap: 5
   bootswatch: flatly
 
-navbar:
-  title: "wdiexplorer"
-  logo: "inst/wdiexplorer_logo.png"
