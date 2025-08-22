@@ -20,15 +20,13 @@ library(wdiexplorer)
 
 This document introduces the `wdiexplorer` package, and illustrate how each function can help identify patterns, outliers and other potentially interesting features of country-level panel data. 
 
-The `wdiexplorer` package provides a collection of indices for exploratory analysis of country-level panel data from the World Development Indicators (WDI, [the world bank collection of development indicators](https://databank.worldbank.org/home.aspx)) using the `WDI` R package to effectively source and store the data locally. The package name is an acronym that captures its core functionality: World Development Indicators Explorer.
+The `wdiexplorer` package provides a collection of indices and visualisation tools for exploratory analysis of country-level panel data from the World Development Indicators (WDI, [the world bank collection of development indicators](https://databank.worldbank.org/home.aspx)) using the `WDI` R package to effectively source and store the data locally. The package name is an acronym that captures its core functionality: World Development Indicators Explorer.
 
-There are three main goals for `wdiexplorer`:
+There are two main goals of the `wdiexplorer` package:
 
-1. Group-Informed Exploration of Country-Level Panel Data.
+1. A collection of diagnostic indices that characterise panel data behaviour.
 
-2. A Collection of Diagnostic Indices to Characterise Panel Data Behaviour.
-
-3. Interactive Visuals to Summarise Behavioral Patterns and Group-Based Features.
+2. Group-informed exploration of country-level panel data that leverage the pre-defined groupings of the data through interactive visuals to capture behavioural patterns and highlight group-based features.
 
 This guide is organised according to these goals, and will continue to evolve with the package.
 
