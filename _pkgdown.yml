@@ -1,4 +1,8 @@
 url: https://github.com/Oluwayomi-Olaitan/wdiexplorer
 template:
   bootstrap: 5
+  bootswatch: flatly
 
+navbar:
+  title: "wdiexplorer"
+  logo: "inst/wdiexplorer_logo.png"
