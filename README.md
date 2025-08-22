@@ -24,4 +24,4 @@ library(wdiexplorer)
 ```
 
 
-For a detailed workflow of the package that computes the set of diagnostic indices measures and visualisation examples of their outputs, see the [vignette](https://github.com/Oluwayomi-Olaitan/wdiexplorer/docs/articles/wdiexplorer.html) .
+For a detailed workflow of the package that computes the set of diagnostic indices measures and visualisation examples of their outputs, see the [vignette](https://github.com/Oluwayomi-Olaitan/wdiexplorer/articles/wdiexplorer.html) .
