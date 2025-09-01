@@ -5,7 +5,7 @@
 #' @param index An optional character string specifying the indicator code
 #' Defaults to `NULL`
 #' @param metric A character string specifying the dissimilarity metric to use
-#' Defaults to `"euclidean"`
+#' Defaults to `"euclidean"` and uses the `daisy()` function which handles missing values.
 #'
 #' @returns A matrix of pairwise dissimilarities between countries.
 #' @export

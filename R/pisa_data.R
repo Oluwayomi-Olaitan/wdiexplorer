@@ -1,0 +1,29 @@
+#' PISA mathematics average scores
+#'
+#' The Programme for International Student Assessment (PISA) is a study conducted by the Organisation for Economic Co-operation and Development (OECD) that evaluates education systems by measuring 15-year-old students’ performance in reading, mathematics, and science every three years.
+#'
+#' @format A data frame with 15,407 observations with 13 variables
+#' \describe{
+#'
+#' \item{country}{Country name (character)}
+#' \item{iso2c}{2-letter ISO country code (character)}
+#' \item{iso3c}{3-letter ISO country code (character)}
+#' \item{year}{Calendar year representing the time index of the observation (integer)}
+#' \item{LO.PISA.MAT}{Observational values for the specified indicator code (numeric)}
+#' \item{status}{An empty variable meant to indicate the operational status of variables (character)}
+#' \item{lastupdated}{Timestamp that indicates the most recent update of the indicator date (character)}
+#' \item{region}{Geographical region variable (character)}
+#' \item{capital}{Name of the capital city of each country (character)}
+#' \item{longitude}{Geographic coordinate that measures the longitude of the city (character)}
+#' \item{latitude}{Geographic coordinate that measures the latitude of the city (character)}
+#' \item{income}{World Bank income classification variable (character)}
+#' \item{lending}{World Bank income classification variable (character)}
+#' }
+#'
+#' @source World Development Indicator, using the WDI R package
+#'
+#' @examples
+#' data(pisa_data)
+#'
+#' head(pisa_data)
+"pisa_data"

@@ -23,7 +23,7 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
   # pivot_long all the metric summaries
   summary_long <- diagnostic_summary |>
     tidyr::pivot_longer(
-      -c(.data$country, .data$region, .data$income),
+      cols = tidyselect::where(is.numeric),
       names_to = "diagnostics",
       values_to = "metrics"
     )
@@ -65,7 +65,7 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
           x = .data$diagnostics,
           y = .data$metrics_norm,
           group = .data$country,
-          color = .data$region,
+          color = .data[[colour_var]],
           tooltip = .data$country,
           data_id = .data$country
         ), alpha = 0.6
@@ -98,7 +98,7 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
           x = .data$diagnostics,
           y = .data$metrics_norm,
           group = .data$country,
-          color = .data[[group_var]],
+          color = .data[[colour_var]],
           tooltip = paste(
             "Country:", .data$country, "<br/>",
             .data$diagnostics, ":", sprintf("%.2f", .data$metrics)),
@@ -111,7 +111,7 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
           x = .data$diagnostics,
           y = .data$metrics_norm,
           group = .data$country,
-          color = .data$region,
+          color = .data[[colour_var]],
           tooltip = .data$country,
           data_id = .data$country
         ), alpha = 0.6

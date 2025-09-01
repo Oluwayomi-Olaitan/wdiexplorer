@@ -40,7 +40,10 @@ compute_temporal_features <- function(wdi_data, index = NULL){
     dplyr::summarise(
       crossing_points = feasts::n_crossing_points(.data[[index]]),
       flat_spot = feasts::longest_flat_spot(.data[[index]]),
-      acf = stats::cor(.data[[index]], dplyr::lag(.data[[index]]), use = "complete.obs")
+      acf = tryCatch(
+        stats::cor(.data[[index]], dplyr::lag(.data[[index]]), use = "complete.obs"),
+        error = function(e) NA_real_
+      )
     )
 
   return(temporal_measures)

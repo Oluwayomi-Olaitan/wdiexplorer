@@ -3,7 +3,7 @@
 \name{get_valid_data}
 \alias{get_valid_data}
 \title{Extract valid data from the WDI data
-Reports countries with no data points as well as years for which no data are available.}
+Reports countries with no data point, countries with one data point, as well as years for which no data are available.}
 \usage{
 get_valid_data(wdi_data, index = NULL)
 }
@@ -18,7 +18,7 @@ A tibble with the valid data for the provided WDI indicator data set and a detai
 }
 \description{
 Extract valid data from the WDI data
-Reports countries with no data points as well as years for which no data are available.
+Reports countries with no data point, countries with one data point, as well as years for which no data are available.
 }
 \examples{
 get_valid_data(pm_data)

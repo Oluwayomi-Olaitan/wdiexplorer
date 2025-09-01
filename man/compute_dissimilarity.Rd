@@ -14,7 +14,7 @@ compute_dissimilarity(wdi_data, index = NULL, metric = "euclidean")
 Defaults to \code{NULL}}
 
 \item{metric}{A character string specifying the dissimilarity metric to use
-Defaults to \code{"euclidean"}}
+Defaults to \code{"euclidean"} and uses the \code{daisy()} function which handles missing values.}
 }
 \value{
 A matrix of pairwise dissimilarities between countries.

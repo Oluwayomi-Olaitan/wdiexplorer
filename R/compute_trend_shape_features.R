@@ -7,7 +7,6 @@
 #' Defaults to `NULL`
 #'
 #' @returns A data frame with columns `country`, `trend_strength`, `linearity`, `curvature`, and `smoothness`.
-#' @importFrom data.table :=
 #' @export
 #'
 #' @examples
@@ -50,25 +49,31 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
 
   # check if valid data has missing entries, if there are missing points, replace by linear interpolation, else return the valid data
   if(any(is.na(valid_data[[index]]))) {
-    complete_data <- valid_data |>
+    complete_data <- valid_data
+
+    complete_data[[index]] <- valid_data |>
       dplyr::group_by(.data$country) |>
       dplyr::arrange(.data$year) |>
-      dplyr::mutate(!!index := stats::approx(
-        x = year[!is.na(.data[[index]])], # take the non-missing years as x
-        y = .data[[index]][!is.na(.data[[index]])], # take the non-missing values as y
-        xout = year,
-        rule = 2 # if the immediate nearest values are also NA, use the next available point for interpolation
-      )$y) |>
-      dplyr::ungroup()
+      dplyr::mutate(
+        n_valid = sum(!is.na(.data[[index]])),
+        value =
+          stats::approx(
+            x = year[!is.na(.data[[index]])],
+            y = .data[[index]][!is.na(.data[[index]])],
+            xout = year,
+            rule = 2
+          )$y
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::pull(.data$value)
 
     cat(
-      "Note: The dataset '", deparse(substitute(wdi_data)),
-      "' has missing values.\n Missing entries were replaced by linear interpolation."
+      "Note: The dataset '",deparse(substitute(wdi_data)),
+      "' has missing values.\n Missing entries are replaced by linear interpolation."
     )
   } else {
     complete_data <- valid_data
   }
-
   # the features from the feasts package
   # convert the data to tsibble
   data_tsibble <- tsibble::as_tsibble(complete_data,
