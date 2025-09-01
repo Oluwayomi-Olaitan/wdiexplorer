@@ -112,7 +112,7 @@
 <span>        metric_var <span class="op">=</span> <span class="st">"linearity"</span>,</span>
 <span>        colour_var <span class="op">=</span> <span class="st">"region"</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README.distribution-plot.png" alt="Distribution Plot"><!-- --></p>
+<p><img src="reference/figures/README.distribution-plot.png" alt="The Metric Distribution Plot"><!-- --></p>
 <p>The distribution plot displays the distribution of metric values, either for all diagnostic indices or for a selected metric (one or multiple). It summarises the variation of metric values by showing the spread and shape of their distributions. There are two versions of the distribution plot: an ungrouped version, which shows the values of one or more metrics across all countries, and a grouped version, which displays the distribution within each level of a specified grouping variable.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_metric_partition.html">plot_metric_partition</a></span><span class="op">(</span></span>
@@ -120,18 +120,18 @@
 <span>          metric_var <span class="op">=</span> <span class="st">"sil_width"</span>,</span>
 <span>          group_var <span class="op">=</span> <span class="st">"region"</span></span>
 <span> <span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README.partition-plot.png" alt="Partition Plot"><!-- --></p>
+<p><img src="reference/figures/README.partition-plot.png" alt="The Metric Partition Plot"><!-- --></p>
 <p>The partition plot presents metric values for individual countries grouped by a specified grouping variable. The metric value of each country is represented by a coloured bar ordered in descending order, while a lighter-shaded rectangular bar beneath indicates the average value of the metric at each group-level.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_data_trajectories.html">plot_data_trajectories</a></span><span class="op">(</span><span class="va">pm_data</span>, group_var <span class="op">=</span> <span class="st">"region"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README.trajectory-plot.png" alt="Trajectory Plot"><!-- --></p>
+<p><img src="reference/figures/README.trajectory-plot.png" alt="The Data Trajectory Plot"><!-- --></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_data_trajectories.html">plot_data_trajectories</a></span><span class="op">(</span></span>
 <span>        <span class="va">pm_data</span>, </span>
 <span>        metric_summary <span class="op">=</span> <span class="va">pm_diagnostic_metrics</span>, </span>
 <span>        metric_var <span class="op">=</span> <span class="st">"country_avg_dist"</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README.dissimilarity-plot.png" alt="Dissimilarity Plot"><!-- --></p>
+<p><img src="reference/figures/README.dissimilarity-plot.png" alt="The Metric Dissimilarity Plot"><!-- --></p>
 <p>The data trajectories plot displays the trajectory of the data series for each country. It supports two modes and each mode can be rendered in two versions: ungrouped and grouped versions. Both modes display all series as uniform line plots, while the second mode highlights countries that fall within a specified percentile of any chosen diagnostic metric values.</p>
 <p>For more visualisation examples and a detailed workflow of the package that sources and prepare the data, computes the set of diagnostic indices, and visualisation examples of their outputs, see package <a href="https://oluwayomi-olaitan.github.io/wdiexplorer/articles/pm_analysis.html" class="external-link">vignette</a>.</p>
 </div>
