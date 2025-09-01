@@ -80,7 +80,7 @@ plot_metric_distribution(
     )
 ```
 
-![Distribution Plot](man/figures/README.distribution-plot.png)<!-- -->
+![The Metric Distribution Plot](man/figures/README.distribution-plot.png)<!-- -->
 
 The distribution plot displays the distribution of metric values, either for all diagnostic indices or for a selected metric (one or multiple). It summarises the variation of metric values by showing the spread and shape of their distributions. 
 There are two versions of the distribution plot: an ungrouped version, which shows the values of one or more metrics across all countries, and a grouped version, which displays the distribution within each level of a specified grouping variable.
@@ -93,7 +93,7 @@ plot_metric_partition(
  )
 ```
 
-![Partition Plot](man/figures/README.partition-plot.png)<!-- -->
+![The Metric Partition Plot](man/figures/README.partition-plot.png)<!-- -->
 
 The partition plot presents metric values for individual countries grouped by a specified grouping variable. 
 The metric value of each country is represented by a coloured bar ordered in descending order, 
@@ -103,7 +103,7 @@ while a lighter-shaded rectangular bar beneath indicates the average value of th
 plot_data_trajectories(pm_data, group_var = "region")
 ```
 
-![Trajectory Plot](man/figures/README.trajectory-plot.png)<!-- -->
+![The Data Trajectory Plot](man/figures/README.trajectory-plot.png)<!-- -->
 
 ``` r
 plot_data_trajectories(
@@ -113,7 +113,7 @@ plot_data_trajectories(
     )
 ```
 
-![Dissimilarity Plot](man/figures/README.dissimilarity-plot.png)<!-- -->
+![The Metric Dissimilarity Plot](man/figures/README.dissimilarity-plot.png)<!-- -->
 
 The data trajectories plot displays the trajectory of the data series for each country. It supports two modes and each mode can be rendered in two versions: ungrouped and grouped versions. 
 Both modes display all series as uniform line plots, while the second mode highlights countries that fall within a specified percentile of any chosen diagnostic metric values.
