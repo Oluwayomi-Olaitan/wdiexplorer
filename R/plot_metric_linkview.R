@@ -31,11 +31,17 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
     index = index_var[1]
   }
 
+  # filter valid countries and years where actual data were collected, ignoring the WDI defaults
+  # using the `get_valid_data()` function
+  invisible(utils::capture.output(
+    valid_data <- get_valid_data(wdi_data, index = index)
+  ))
+
   if(is.null(group_var)){
     # the line plot
     line_plot <- ggplot2::ggplot() +
       ggiraph::geom_line_interactive(
-        data = stats::na.omit(wdi_data),
+        data = valid_data,
         ggplot2::aes(
           x = .data$year,
           y = .data[[index]],
@@ -65,7 +71,7 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
   } else{
     line_plot <- ggplot2::ggplot() +
       ggiraph::geom_line_interactive(
-        data = stats::na.omit(wdi_data),
+        data = valid_data,
         ggplot2::aes(
           x = .data$year,
           y = .data[[index]],

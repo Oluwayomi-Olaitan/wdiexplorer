@@ -20,19 +20,19 @@
 #' metric_var = "sil_width", group_var = "region")
 plot_metric_partition <- function(metric_summary, metric_var, group_var){
   group_metric <- metric_summary |>
-    dplyr::group_by(.data[[group_var]]) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of(group_var))) |>
     dplyr::mutate(group_avg = mean(.data[[metric_var]])) |>
     dplyr::ungroup() |>
     # Re-order group_var by the group_avg
     dplyr::mutate(group = forcats::fct_reorder(.data[[group_var]], -.data$group_avg)) |>
     # Now create colours in the order of reordered groups
     dplyr::mutate(
-      colour = scales::hue_pal()(length(levels(group)))[as.integer(group)],
-      country_label = paste0("<span style='colour:", .data$colour, "'>", .data$country, "</span>")
+      colour = scales::hue_pal()(length(levels(.data$group)))[as.integer(.data$group)],
+      country_label = paste0("<span style='color:", .data$colour, "'>", .data$country, "</span>")
     ) |>
-    dplyr::group_by(group) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of("group"))) |>
     dplyr::arrange(.data[[metric_var]], .by_group = TRUE) |>
-    dplyr::mutate(country_label = forcats::fct_inorder(country_label)) |>
+    dplyr::mutate(country_label = forcats::fct_inorder(.data$country_label)) |>
     dplyr::ungroup()
 
   # The plot
@@ -40,14 +40,12 @@ plot_metric_partition <- function(metric_summary, metric_var, group_var){
     ggplot2::ggplot() +
     # Draw group average bars in the background
     ggplot2::geom_col(
-      ggplot2::aes(x = .data$group_avg,
-                   y = country_label, fill = group),
-      width = 1, alpha = 0.25) +
+      ggplot2::aes(x = .data$group_avg, y = .data$country_label, fill = .data$group),
+        width = 1, alpha = 0.25) +
     ggplot2::geom_col(
-      ggplot2::aes(x = .data[[metric_var]],
-                   y = country_label, fill = group),
+      ggplot2::aes(x = .data[[metric_var]], y = .data$country_label, fill = .data$group),
       width = 0.75) +
-    ggplot2::facet_grid(ggplot2::vars(group), scales = "free_y", space = "free_y", switch = "y") +
+    ggplot2::facet_grid(ggplot2::vars(.data$group), scales = "free_y", space = "free_y", switch = "y") +
     ggplot2::labs(x = paste0("Metric Measure: ",metric_var), y = " " ) +
     ggplot2::theme(
       axis.text.y = ggtext::element_markdown(size = 5.6),
@@ -72,11 +70,11 @@ plot_metric_partition <- function(metric_summary, metric_var, group_var){
   # Extract fill colours from the first layer (group_avg bars) and
   # adding the default fill colour to the panel_groups
   default_colours <- built$data[[1]] |>
-    dplyr::select(.data$PANEL, .data$fill) |>
+    dplyr::select("PANEL", "fill") |>
     dplyr::distinct()
 
   panel_groups <- built$layout$layout |>
-    dplyr::select(.data$PANEL, .data$group)
+    dplyr::select("PANEL", "group")
 
   fill_colours <- panel_groups |>
     dplyr::left_join(default_colours, by = "PANEL")
@@ -89,7 +87,7 @@ plot_metric_partition <- function(metric_summary, metric_var, group_var){
     st <- match(gsub("\n", " ", grobtext), fill_colours$group)
     if (!is.na(st)){
       r <- which(grepl('text', G$grobs[[i]]$grobs[[1]]$children[[k]]$childrenOrder))
-      G$grobs[[i]]$grobs[[1]]$children[[k]]$children[[r]]$gp$col <- fill_colours[st, "fill"]
+      G$grobs[[i]]$grobs[[1]]$children[[k]]$children[[r]]$gp$col <- fill_colours$fill[st]
     }
   }
 

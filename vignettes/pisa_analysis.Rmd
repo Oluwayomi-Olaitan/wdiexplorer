@@ -226,7 +226,7 @@ plot_metric_distribution(
 
 The `plot_metric_partition` function presents metric values for individual countries grouped by a specified grouping variable. The metric value of each country is represented by a coloured bar ordered in descending order, while a lighter-shaded rectangular bar beneath indicates the group-level average for the metric. The function takes three arguments: a data frame with the calculated diagnostic indices and the grouping information, `metric_summary`; a variable, `metric_var` within the data frame that contains the metric values; and a variable, `group_var`, with the grouping information.
 
-```{r, partition plot, fig.width=7.5, fig.height=11.5, fig.cap = "Country silhouette widths, grouped by income, with the average silhouette width for each income underlaid beneath the country bars. The majority of the countries in high income group exhibit positive silhouette widths. Across all the groups, they exhibit both positive and negative silhouette widths."}
+```{r, partition plot, fig.width=7, fig.height=9, fig.cap = "Country silhouette widths, grouped by income, with the average silhouette width for each income underlaid beneath the country bars. The majority of the countries in high income group exhibit positive silhouette widths. Across all the groups, they exhibit both positive and negative silhouette widths."}
 plot_metric_partition(
           metric_summary = pisa_diagnostic_metrics_group,
           metric_var = "sil_width",

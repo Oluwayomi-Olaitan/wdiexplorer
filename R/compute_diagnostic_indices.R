@@ -22,20 +22,20 @@ compute_diagnostic_indices <- function(wdi_data, index = NULL, group_var) {
 
   # filter valid data using the `get_valid_data()` function
   invisible(utils::capture.output(
-    valid_data <- get_valid_data(wdi_data)
+    valid_data <- get_valid_data(wdi_data, index = index)
   ))
 
   # compute variation
-  variation <- compute_variation(wdi_data, group_var = group_var)
+  variation <- compute_variation(wdi_data, index = index, group_var = group_var)
 
   # compute trend and shape measures
-  trend_shape <- compute_trend_shape_features(wdi_data)
+  trend_shape <- compute_trend_shape_features(wdi_data, index = index)
 
   # compute sequential measures
-  sequential <- compute_temporal_features(wdi_data)
+  sequential <- compute_temporal_features(wdi_data, index = index)
 
   combine_measures <- variation |>
-    dplyr::select(-.data$group) |>
+    dplyr::select(-tidyselect::all_of("group")) |>
     dplyr::left_join(trend_shape, by = "country") |>
     dplyr::left_join(sequential, by = "country")
 

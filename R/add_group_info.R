@@ -18,11 +18,11 @@ add_group_info <- function(metric_summary, wdi_data){
   }
   country_groups <- metric_summary |>
     dplyr::left_join(
-      wdi_data |> dplyr::select(.data$country, .data$region, .data$income),
-      by = "country",
-      multiple = "first"
-    ) |>
-    dplyr::select(.data$country, .data$region, .data$income, dplyr::everything())
+      wdi_data |>
+        dplyr::select(dplyr::where(is.character)),
+        by = "country",
+        multiple = "first"
+    )
 
   return(country_groups)
 }

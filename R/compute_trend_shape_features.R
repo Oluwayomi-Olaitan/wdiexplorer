@@ -31,13 +31,13 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
   # filter valid countries and years where actual data were collected, ignoring the WDI defaults
   # using the `get_valid_data()` function
   invisible(utils::capture.output(
-    valid_data <- get_valid_data(wdi_data)
+    valid_data <- get_valid_data(wdi_data, index = index)
   ))
 
   # calculate smoothness
   smoothness <- valid_data |>
-    dplyr::arrange(.data$country, .data$year) |>
-    dplyr::group_by(.data$country) |>
+    dplyr::arrange(dplyr::across(tidyselect::all_of(c("country", "year")))) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of("country"))) |>
     dplyr::mutate(
       diff = (.data[[index]] - dplyr::lag(.data[[index]])) /
         (.data$year - dplyr::lag(.data$year))
@@ -52,15 +52,15 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
     complete_data <- valid_data
 
     complete_data[[index]] <- valid_data |>
-      dplyr::group_by(.data$country) |>
-      dplyr::arrange(.data$year) |>
+      dplyr::group_by(dplyr::across(tidyselect::all_of("country"))) |>
+      dplyr::arrange(dplyr::across(tidyselect::all_of("year"))) |>
       dplyr::mutate(
         n_valid = sum(!is.na(.data[[index]])),
         value =
           stats::approx(
-            x = year[!is.na(.data[[index]])],
+            x = .data$year[!is.na(.data[[index]])],
             y = .data[[index]][!is.na(.data[[index]])],
-            xout = year,
+            xout = .data$year,
             rule = 2
           )$y
       ) |>
@@ -83,7 +83,8 @@ compute_trend_shape_features <- function(wdi_data, index = NULL){
 
   trend_features <- data_tsibble |>
     fabletools::features(.data[[index]], feasts::feat_stl) |>
-    dplyr::select(.data$country, .data$trend_strength, .data$linearity, .data$curvature)
+  dplyr::select(tidyselect::all_of(c("country", "trend_strength", "linearity", "curvature")))
+
 
   trend_shape_features <- trend_features |>
     dplyr::left_join(smoothness, by = "country")

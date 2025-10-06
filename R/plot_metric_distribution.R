@@ -26,9 +26,10 @@ plot_metric_distribution <- function(metric_summary, colour_var, metric_var = NU
 
   if(is.null(metric_var)){
     # pivot_long all the metric summaries
+
     summary_long <- metric_summary |>
       tidyr::pivot_longer(
-        -c(.data$country, .data$region, .data$income),
+        cols = tidyselect::where(is.numeric),
         names_to = "diagnostics",
         values_to = "metrics"
       ) |>
@@ -39,7 +40,7 @@ plot_metric_distribution <- function(metric_summary, colour_var, metric_var = NU
     # one or more selected features
     summary_long <- metric_summary |>
       tidyr::pivot_longer(
-        c(tidyselect::all_of(metric_var)),
+        cols = tidyselect::all_of(metric_var),
         names_to = "diagnostics",
         values_to = "metrics"
       ) |>

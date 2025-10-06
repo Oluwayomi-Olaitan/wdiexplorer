@@ -17,7 +17,7 @@ You can install the `wdiexplorer` package from [GitHub](https://github.com/Oluwa
 ``` r
 #install.packages("devtools")
 
-#devtools::install_github(Oluwayomi-Olaitan/wdiexplorer)
+#devtools::install_github("Oluwayomi-Olaitan/wdiexplorer")
 
 library(wdiexplorer)
 

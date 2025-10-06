@@ -19,10 +19,10 @@ get_valid_data <- function(wdi_data, index = NULL) {
 
   # Identify years with no data points
   invalid_years <- wdi_data |>
-    dplyr::group_by(.data$year) |>
-    dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
-    dplyr::filter(.data$n==0) |>
-    dplyr::pull(year)
+    dplyr::group_by(dplyr::across(tidyselect::all_of("year"))) |>
+    dplyr::summarise(n = sum(!is.na(.data[[index]])), .groups = "drop") |>
+    dplyr::filter(.data$n == 0) |>
+    dplyr::pull(.data$year)
 
   #return message about missing years
   year_message <- if(length(invalid_years) > 0) {
@@ -35,14 +35,14 @@ get_valid_data <- function(wdi_data, index = NULL) {
 
   # Identify country with no data points
   invalid_countries <- wdi_data |>
-    dplyr::group_by(.data$country) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of("country"))) |>
     dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
     dplyr::filter(.data$n == 0) |>
     dplyr::pull(.data$country)
 
   # Identify country with one data point
   singleton_countries <- wdi_data |>
-    dplyr::group_by(.data$country) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of("country"))) |>
     dplyr::summarise(n = sum(!is.na(.data[[index]]))) |>
     dplyr::filter(.data$n == 1) |>
     dplyr::pull(.data$country)
@@ -74,11 +74,11 @@ get_valid_data <- function(wdi_data, index = NULL) {
 
   # filter valid countries and years where actual data were collected, ignoring the WDI defaults
   valid_data <- wdi_data |>
-    dplyr::arrange(.data$year) |> # arrange year in ascending order
-    dplyr::group_by(.data$year) |>
+    dplyr::arrange(dplyr::across(tidyselect::all_of("year"))) |> # arrange year in ascending order
+    dplyr::group_by(dplyr::across(tidyselect::all_of("year"))) |>
     dplyr::filter(sum(!is.na(.data[[index]])) > 0) |> #Ensure a year level has at least one valid point
     dplyr::ungroup() |>
-    dplyr::group_by(.data$country) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of("country"))) |>
     dplyr::filter(sum(!is.na(.data[[index]])) > 1) |> #Ensure a country level has more than one valid point
     dplyr::ungroup()
 

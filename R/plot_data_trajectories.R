@@ -36,13 +36,19 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
     index = index_var[1]
   }
 
+  # filter valid countries and years where actual data were collected, ignoring the WDI defaults
+  # using the `get_valid_data()` function
+  invisible(utils::capture.output(
+    valid_data <- get_valid_data(wdi_data, index = index)
+  ))
+
   if(is.null(metric_summary) && is.null(metric_var)){
     # plot the data trajectories
     if(is.null(group_var)){
       # ungrouped plot
       P <- ggplot2::ggplot() +
         ggiraph::geom_line_interactive(
-          data = stats::na.omit(wdi_data),
+          data = valid_data,
           ggplot2::aes(
             x = .data$year,
             y = .data[[index]],
@@ -58,7 +64,7 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
       # grouped plot
       P <- ggplot2::ggplot() +
         ggiraph::geom_line_interactive(
-          data = stats::na.omit(wdi_data),
+          data = valid_data,
           ggplot2::aes(
             x = .data$year,
             y = .data[[index]],
@@ -75,25 +81,31 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
 
   } else{
     # the percentile label
-    percentile_label <- paste0("<=", percentile *100, "%")
+    percentile_label <- paste0("<", percentile *100, "%")
 
     # plot the metrics with the data trajectories
     if(is.null(group_var)){
       # ungrouped plot
       # global threshold
-      # joining the metric_data to the wdi_data.
-      metric_data <- wdi_data |>
-        dplyr::select(.data$country, .data$region, .data$income, .data$year, tidyselect::all_of(index)) |>
+      # joining the metric_data to the valid_data.
+      # Identify all character columns in valid_data
+      char_cols <- names(valid_data)[sapply(valid_data, is.character)]
+
+      # Ensure country, year and index are included
+      required_cols <- unique(c("country", "year", char_cols, index))
+      metric_data <- valid_data |>
+        dplyr::select(tidyselect::all_of(required_cols)) |>
         dplyr::left_join(metric_summary, by = "country")
 
       # calculate the cutoff for the country metrics.
       cutoff_value <- stats::quantile(metric_summary[[metric_var]], probs = percentile, na.rm = TRUE)
+      label = paste0("<", sprintf("%.2f", cutoff_value))
 
       # the plot
       P <- ggplot2::ggplot() +
         ggplot2::geom_line(
-          data = stats::na.omit(metric_data) |>
-            dplyr::filter(.data[[metric_var]] <= cutoff_value),
+          data = metric_data |>
+            dplyr::filter(.data[[metric_var]] < cutoff_value),
           ggplot2::aes(
             x = .data$year,
             y = .data[[index]],
@@ -104,13 +116,13 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
         ggplot2::scale_colour_manual(
           name = NULL,
           values = c("below" = "grey"),
-          labels = c("below" = percentile_label),
+          labels = c("below" = label),
           guide = ggplot2::guide_legend(order = 2)
         ) +
         ggnewscale::new_scale_color() +
         ggiraph::geom_line_interactive(
-          data = stats::na.omit(metric_data) |>
-            dplyr::filter(.data[[metric_var]] > cutoff_value),
+          data = metric_data |>
+            dplyr::filter(.data[[metric_var]] >= cutoff_value),
           ggplot2::aes(
             x = .data$year,
             y = .data[[index]],
@@ -135,23 +147,23 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
     } else{
       # compute group quantile threshold
       group_metric <- metric_summary |>
-        dplyr::group_by(.data[[group_var]]) |>
+        dplyr::group_by(dplyr::across(tidyselect::all_of(group_var))) |>
         dplyr::mutate(
           threshold = stats::quantile(.data[[metric_var]],
                                probs = percentile,
                                na.rm = TRUE)
         )
 
-      # join the group_metric to the wdi_data
-      wdi_data |>
-        dplyr::select(.data$country, .data$year, tidyselect::all_of(index)) |>
+      # join the group_metric to the valid_data
+      valid_data |>
+        dplyr::select(tidyselect::all_of(c("country", "year", index))) |>
         dplyr::left_join(group_metric, by = "country") -> group_metric_data
 
       # the faceted plot
       P <- ggplot2::ggplot() +
         ggplot2::geom_line(
-          data = stats::na.omit(group_metric_data) |>
-            dplyr::filter(.data[[metric_var]] <= .data$threshold),
+          data = group_metric_data |>
+            dplyr::filter(.data[[metric_var]] < .data$threshold),
           ggplot2::aes(
             x = .data$year,
             y = .data[[index]],
@@ -167,8 +179,8 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
         ) +
         ggnewscale::new_scale_color() +
         ggiraph::geom_line_interactive(
-          data = stats::na.omit(group_metric_data) |>
-            dplyr::filter(.data[[metric_var]] > .data$threshold),
+          data = group_metric_data |>
+            dplyr::filter(.data[[metric_var]] >= .data$threshold),
           ggplot2::aes(
             x = .data$year,
             y = .data[[index]],

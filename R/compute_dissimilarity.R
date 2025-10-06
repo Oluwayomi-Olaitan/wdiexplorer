@@ -28,11 +28,17 @@ compute_dissimilarity <- function(wdi_data, index = NULL, metric = "euclidean"){
                paste(missing_cols, collapse = ", ")))
   }
 
-  # convert the wdi_data to a wider form
-  data_wide <- wdi_data |>
-    dplyr::select(.data$country, .data$year, tidyselect::all_of(index)) |>
+  # filter valid countries and years where actual data were collected, ignoring the WDI defaults
+  # using the `get_valid_data()` function
+  invisible(utils::capture.output(
+    valid_data <- get_valid_data(wdi_data, index = index)
+  ))
+
+  # convert the valid_data to a wider form
+  data_wide <- valid_data |>
+    dplyr::select(tidyselect::all_of(c("country", "year", index))) |>
     tidyr::pivot_wider(
-      names_from = year,
+      names_from = "year",
       values_from = tidyselect::all_of(index)
     ) |>
     tibble::column_to_rownames("country") |> # set columns to row names

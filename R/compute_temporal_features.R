@@ -31,12 +31,13 @@ compute_temporal_features <- function(wdi_data, index = NULL){
   # filter valid countries and years where actual data were collected, ignoring the WDI defaults
   # using the `get_valid_data()` function
   invisible(utils::capture.output(
-    valid_data <- get_valid_data(wdi_data)
+    valid_data <- get_valid_data(wdi_data, index = index)
   ))
 
+
   temporal_measures <- valid_data |>
-    dplyr::group_by(.data$country) |>
-    dplyr::arrange(.data$country, .data$year) |> # arrange year in ascending order within countries
+    dplyr::group_by(dplyr::across(tidyselect::all_of("country"))) |>
+    dplyr::arrange(dplyr::across(tidyselect::all_of(c("country", "year")))) |> # arrange year in ascending order within countries
     dplyr::summarise(
       crossing_points = feasts::n_crossing_points(.data[[index]]),
       flat_spot = feasts::longest_flat_spot(.data[[index]]),
