@@ -199,7 +199,7 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
           guide = ggplot2::guide_colorbar(order = 1)
         ) +
         ggplot2::facet_wrap(stats::as.formula(paste("~", group_var))) +
-        ggplot2::theme_classic()+
+        ggplot2::theme_classic() +
         ggplot2::theme(
           legend.spacing.y = ggplot2::unit(0.2, "cm")
         )

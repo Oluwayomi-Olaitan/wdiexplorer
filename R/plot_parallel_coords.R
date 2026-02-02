@@ -35,7 +35,7 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
     summary_long$metrics_norm <- NULL
     # scale the metrics - global normalisation
     scaled_metrics <- summary_long |>
-      dplyr::group_by(.data$diagnostics) |>
+      dplyr::group_by(dplyr::across(tidyselect::all_of("diagnostics"))) |>
       dplyr::mutate(
         metrics_norm = scales::rescale(.data$metrics, to = c(0, 1),
                                        na.rm = TRUE)) |>
@@ -81,7 +81,7 @@ plot_parallel_coords <- function(diagnostic_summary, colour_var, group_var = NUL
   } else{
     # scale the metrics - group-wise normalisation
     scaled_metrics <- summary_long |>
-      dplyr::group_by(.data[[group_var]], .data$diagnostics) |>
+      dplyr::group_by(dplyr::across(c("diagnostics", tidyselect::all_of(group_var)))) |>
       dplyr::mutate(
         metrics_norm = scales::rescale(.data$metrics, to = c(0, 1),
                                        na.rm = TRUE)) |>
