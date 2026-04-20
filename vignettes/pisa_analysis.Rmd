@@ -42,8 +42,8 @@ To load any WDI indicator data of choice, our function `get_wdi_data` is designe
 
 You can find indicator codes by using the `WDI::WDISearch()` function in R, as illustrated below.
 
-```{r, get-data, eval=FALSE}
-pisa_data <- get_wdi_data(indicator = "LO.PISA.MAT")
+```{r, get-data}
+pisa_data <- get_wdi_data(indicator = "LO.PISA.MAT", verbose = TRUE)
 ```
 
 A glimpse of the data
@@ -78,7 +78,7 @@ pisa_data |>
 In addition, the `wdiexplorer` package provides the `get_valid_data` function, which reports countries with no data points as well as years for which no data are available, and returns a tibble with the valid data for the provided WDI indicator data set.
 
 ```{r, checks-function}
-get_valid_data(pisa_data)
+get_valid_data(pisa_data, verbose = TRUE)
 ```
 
 The `get_valid_data` function reports the 133 countries without valid data, the 9 other countries with only one valid data point and the 64 years with no available data. These entries were excluded from the exploratory analysis.

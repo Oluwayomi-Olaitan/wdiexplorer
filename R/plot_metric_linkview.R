@@ -33,9 +33,7 @@ plot_metric_linkview <- function(wdi_data, index = NULL, metric_summary, metric_
 
   # filter valid countries and years where actual data were collected, ignoring the WDI defaults
   # using the `get_valid_data()` function
-  invisible(utils::capture.output(
-    valid_data <- get_valid_data(wdi_data, index = index)
-  ))
+  valid_data <- get_valid_data(wdi_data, index = index, verbose = FALSE)
 
   if(is.null(group_var)){
     # the line plot

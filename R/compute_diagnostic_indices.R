@@ -21,9 +21,7 @@ compute_diagnostic_indices <- function(wdi_data, index = NULL, group_var) {
   }
 
   # filter valid data using the `get_valid_data()` function
-  invisible(utils::capture.output(
-    valid_data <- get_valid_data(wdi_data, index = index)
-  ))
+  valid_data <- get_valid_data(wdi_data, index = index, verbose = FALSE)
 
   # compute variation
   variation <- compute_variation(wdi_data, index = index, group_var = group_var)

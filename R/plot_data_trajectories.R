@@ -38,9 +38,7 @@ plot_data_trajectories <- function(wdi_data, index = NULL, group_var = NULL, met
 
   # filter valid countries and years where actual data were collected, ignoring the WDI defaults
   # using the `get_valid_data()` function
-  invisible(utils::capture.output(
-    valid_data <- get_valid_data(wdi_data, index = index)
-  ))
+  valid_data <- get_valid_data(wdi_data, index = index, verbose = FALSE)
 
   if(is.null(metric_summary) && is.null(metric_var)){
     # plot the data trajectories

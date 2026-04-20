@@ -4,10 +4,12 @@
 \alias{get_wdi_data}
 \title{Download WDI data using the \code{WDI} R package}
 \usage{
-get_wdi_data(indicator)
+get_wdi_data(indicator, verbose = TRUE)
 }
 \arguments{
 \item{indicator}{A valid WDI indicator code}
+
+\item{verbose}{Logical, if TRUE, the message about the data download is printed. If FALSE, it is silenced. Default to TRUE}
 }
 \value{
 An \code{.rds} file containing the data set for the specified indicator code.
@@ -16,7 +18,5 @@ An \code{.rds} file containing the data set for the specified indicator code.
 Create and store the data for the specified indicator code in a folder called \code{wdi_data}.
 }
 \examples{
-\dontrun{
- pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3")
- }
+ pm_data <- get_wdi_data(indicator = "EN.ATM.PM25.MC.M3", verbose = TRUE)
 }
